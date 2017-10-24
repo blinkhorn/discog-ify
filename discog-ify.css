@@ -1,8 +1,15 @@
 .header-content {
   text-align: center;
-  margin: 5% 0;
+  margin: 5% auto;
 }
 
-main {
-  display: flex;  
+.more-info {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+section {
+  margin: 0 auto;
+  text-align: center;
 }
