@@ -1,12 +1,11 @@
 $(document).ready(() => {
 
   //turns cursor into hand when hovers over Spotify login button
-  $('#login-button').hover(() => {
-    css('cursor', 'pointer');
-  });
-
+  $('#login-button').hover(function () {
+       $(this).css('cursor', 'pointer');
+   });
   // Login
-  $("#login-button").click(function() {
+  $('#login-button').click( () => {
 
     let mykey = config.MY_KEY;
     let redirect_uri = 'http://localhost:8888/callback';
