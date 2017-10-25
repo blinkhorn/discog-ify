@@ -67,6 +67,13 @@ section p {
   display: inline-block;
 }
 
+.dark-github-icon {
+  background: url(images/dark-github-icon.svg) left top;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
 .footer-content {
   text-align: left;
   margin: 3%;
