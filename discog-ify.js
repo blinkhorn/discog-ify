@@ -6,15 +6,15 @@ $(document).ready(() => {
   });
 
   // Login
-  $("#login").click(function() {
+  $("#login-button").click(function() {
 
     let mykey = config.MY_KEY;
-    let redirect_uri = '#';
+    let redirect_uri = 'http://localhost:8888/callback';
 
     //add state
 
     let scope = 'playlist-modify-public playlist-modify-private user-read-private';
-    var url = 'https://accounts.spotify.com/authorize';
+    let url = 'https://accounts.spotify.com/authorize';
     url += '?response_type=token';
     url += '&client_id=' + encodeURIComponent(mykey);
     url += '&scope=' + encodeURIComponent(scope);

@@ -1,0 +1,91 @@
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+}
+
+.site {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-content: center;
+  -webkit-overflow-scrolling: touch;
+}
+
+.site-content {
+  flex: 1;
+}
+
+.jumbotron, footer {
+  background-color: #333333 !important;
+}
+
+.header-content {
+  text-align: center;
+  margin: 2% 0 auto;
+  color: #667F6D;
+}
+
+#login-button {
+  background: #2FD566;
+  margin: 3px;
+}
+
+.more-info {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+section {
+  margin: 0 auto;
+  max-width: 40vh;
+}
+
+.more-info a {
+  color: #B0B0B0 !important;
+  text-decoration: none !important;
+}
+
+.more-info a:hover {
+  color: black !important;
+}
+
+section h3 {
+  text-align: center;
+}
+
+section p {
+  text-align: justify;
+}
+
+.github-icon {
+  background: url(images/github-icon.svg) left top;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+.dark-github-icon {
+  background: url(images/dark-github-icon.svg) left top;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+.footer-content {
+  text-align: left;
+  margin: 3%;
+  color: #667F6D;
+}
+
+.footer-content a {
+  color: #445448 !important;
+  text-decoration: none !important;
+}
+
+.footer-content a:hover {
+  color: #667F6D !important;
+}
