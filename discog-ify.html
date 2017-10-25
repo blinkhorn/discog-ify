@@ -1,21 +1,68 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <title>Hello, world!</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<html lang='en'>
 
-    <link rel="stylesheet" href="discog-ify.css">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
+<head>
+  <title>Discog-ify</title>
+  <meta charset='utf-8'>
+  <meta name='description' content='Select an artist or playlist and export their discography into a Spotify playlist.'>
 
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
-    <script src='discog-ify.js'></script>
-  </body>
+  <link rel='stylesheet' href='discog-ify.css'>
+  <!-- Bootstrap CSS -->
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css' integrity='sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb' crossorigin='anonymous'>
+</head>
+
+<body class='site'>
+  <header class='jumbotron'>
+    <div class='header-content'>
+      <h1>Discog-ify</h1>
+      <h5>Easily create Spotify playlists from artist and record label discographies</h5>
+      <div class='login'>
+        <p>Please log in using your Spotify account to export artist or record label discographies to a Spotify playlist <button id='login-button'>Log in to Spotify</button></p>
+      </div>
+    </div>
+  </header>
+  <main class='site-content'>
+    <div class='more-info'>
+      <section>
+        <h3>Description</h3>
+        <p>
+          Dicog-ify allows you to select an artist or record label and generate a Spotify playlist of their available discography once logged in to your Spotify account. For example, to generate a playlist of Robert Hood's discography, log in to your Spotify using
+          the button above, search for, select, and submit Robert Hood on the next page, and enjoy your the playlist that will be automatically added to your Spotify playlists.
+        </p>
+      </section>
+      <section>
+        <h3>Technology Used</h3>
+        <p>
+          Discog-ify is a front-end application developed in JavaScript with jQuery and Bootstrap. Discog-ify accesses discogs.com and Spotify's APIs to generate artist and record label playlists for the user. A similar application, <a href='http://discogstospotify.com/'>DiscogsToSpotify</a>,
+          helped give me the idea for Discog-ify by demonstrating to me that is was possible to use Discogs and Spotify's APIs in this manner. Instead of building playlists off of a user's Discog's collection, Discog-ify users can search for artists and
+          record labels to build Spotify playlists off of without a Discogs account.
+        </p>
+      </section>
+      <section>
+        <h3>About the Developer</h3>
+        <p>
+          Patrick Blinkhorn is a Washington, DC-based full-stack developer with a passion for innovative technology and music. When he isn't coding, he's usually producing/DJing as <a href="https://soundcloud.com/blinkhorn">Blinkhorn</a>.
+        </p>
+        <p>
+          If you have any questions, comments, or trouble with Discog-ify, <a href='mailto:contact.blinkhorn@gmail.com'>email</a> Patrick.
+        </p>
+        <p>
+          <span class='dark-github-icon'></span> Check out more of Patrick's projects on <a href="https://github.com/blinkhorn/">GitHub</a>  .
+        </p>
+      </section>
+    </div>
+  </main>
+  <footer>
+    <div class='footer-content'>
+      <p>Built by <a href="https://github.com/blinkhorn/"><span class='github-icon'></span> blinkhorn</a> in October, 2017</p>
+    </div>
+  </footer>
+
+  <script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js' integrity='sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh' crossorigin='anonymous'></script>
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js' integrity='sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ' crossorigin='anonymous'></script>
+  <script type='text/javascript' src='config.js'></script>
+  <script src='discog-ify.js'></script>
+</body>
+
 </html>
