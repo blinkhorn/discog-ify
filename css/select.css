@@ -1,0 +1,29 @@
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+}
+
+.site {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-content: center;
+  -webkit-overflow-scrolling: touch;
+}
+
+.site-content {
+  flex: 1;
+}
+
+.jumbotron, footer {
+  background-color: #333333 !important;
+}
+
+.header-content {
+  text-align: center;
+  margin: 2% 0 auto;
+  color: #667F6D;
+}
