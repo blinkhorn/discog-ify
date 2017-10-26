@@ -14,7 +14,7 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-.site-content {
+main {
   flex: 1;
 }
 

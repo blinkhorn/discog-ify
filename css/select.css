@@ -14,7 +14,7 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-.site-content {
+main {
   flex: 1;
 }
 
@@ -26,4 +26,17 @@ html, body {
   text-align: center;
   margin: 2% 0 auto;
   color: #667F6D;
+}
+
+.select-forms {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+.label-form, .artist-form {
+  margin: 0 auto;
+  max-width: 40vh;
+  display: flex;
+  flex-direction: column;
 }
