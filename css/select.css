@@ -34,11 +34,15 @@ main {
   justify-content: center;
 }
 
-.label-form, .artist-form {
+.label-form {
   margin: 0 auto;
-  max-width: 40vh;
+  max-width: 50vh;
   display: flex;
   flex-direction: column;
+}
+
+.generate-playlist {
+  margin-left: 0.6em;
 }
 
 .github-icon {
