@@ -40,3 +40,25 @@ main {
   display: flex;
   flex-direction: column;
 }
+
+.github-icon {
+  background: url(../images/github-icon.svg) left top;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+.footer-content {
+  text-align: left;
+  margin: 3%;
+  color: #667F6D;
+}
+
+.footer-content a {
+  color: #4E6153 !important;
+  text-decoration: none !important;
+}
+
+.footer-content a:hover {
+  color: #667F6D !important;
+}
