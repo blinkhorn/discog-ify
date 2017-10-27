@@ -60,6 +60,7 @@ function getURLParams() {
   while (result = regex.exec(totalParams)) { //while exec finds regex in totalParams
     urlParams[result[1]] = decodeURIComponent(result[2]);
   }
+  console.log(urlParams);
   return urlParams;
 };
 
@@ -138,110 +139,110 @@ const aLReleases = function addLabelReleases(discogsResult) {
 //                                  *
 //***********************************/
 
-$(document).ready(() => {
-
-  $('.generate-playlist').hover(function () {
-       $(this).css('cursor', 'pointer');
-   });
-
-  const params = getURLParams();
-  spotify_token = params.access_token;
-  //Set exportIsActive to false on page load in the event that the previous
-  //export did not complete
-  exportIsActive = false;
-
-  ///////////REWORK /////////
-  // Check the login state; set usrID, usrCountry, and usrNameSpotify
-  if (spotify_token) {
-    $.ajax({
-      url: 'https://api.spotify.com/v1/me',
-      headers: {
-        'Authorization': 'Bearer ' + spotify_token
-      },
-      success: (response) => {
-
-        // $('#login').hide();
-        // $('#loggedin').show();
-
-        usrID = response.id;
-        usrCountry = response.country;
-        usrNameSpotify = response.display_name;
-        usrImageURL = '';
-        usrImage = '';
-
-        if (response.images[0] != null) {
-          usrImageURL = response.images[0].url;
-        }
-
-        if (usrImageURL !== '') {
-          usrImage = '<img src=""' + usrImageURL + '>'
-        }
-
-        ////BRING BACK vvvvv
-
-        // if (usrNameSpotify === null) {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
-        // } else {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
-        // }
-
-      },
-      error: (xhr, data) => {
-        window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/discog-ify.html';
-      }
-    });
-  } else {
-    window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/discog-ify.html';
-  }
-
-  // Start-Button
-  $('.generate-playlist').click(function() {
-
-    //Prevent starting the export twice
-    if (exportActive == true) {
-      return;
-    } else(exportActive = true);
-
-      //Reset some of the global values when the start-button is clicked
-      globalArtists = [];
-      playlistID = null;
-      multipleMatches = [];
-      withoutMatches = [];
-      addedCount = 0;
-      totalReleases = 0;
-      adedArtistCount = 0;
-
-      labelNameDiscogs = $('.generate-playlist-input').val();
-
-      $('#imageDiv').empty();
-      // $('#progressDiv').removeClass('hide');
-      // updateProgressBar(0);
-
-      //Start after a timeout so the Browser has time to display the changes
-      setTimeout(getCollection, 10, userNameDiscogs, 1);
-    });
-
-    $('.generate-playlist').hover(function() {
-      $(this).css('cursor', 'pointer');
-    });
-
-    // Make the user choose the right release
-    $('#releasesAdded').on('hidden.bs.modal', function(e) {
-      exportMultipleMatches();
-    });
-
-    // And again after the modal has been hidden
-    $('#bestMatch').on('hidden.bs.modal', function(e) {
-      exportMultipleMatches();
-    });
-
-    // Create Playlist
-    $('#collectionFetched').on('hidden.bs.modal', function(e) {
-      createPlaylist();
-    });
-
-    // Set the progress bar to 100% in the end
-    $('#noMatch').on('hidden.bs.modal', function(e) {
-      updateProgressBar(100);
-    });
-  });
+// $(document).ready(() => {
+//
+//   $('.generate-playlist').hover(function () {
+//        $(this).css('cursor', 'pointer');
+//    });
+//
+//   const params = getURLParams();
+//   spotify_token = params.access_token;
+//   //Set exportIsActive to false on page load in the event that the previous
+//   //export did not complete
+//   exportIsActive = false;
+//
+//   ///////////REWORK /////////
+//   // Check the login state; set usrID, usrCountry, and usrNameSpotify
+//   if (spotify_token) {
+//     $.ajax({
+//       url: 'https://api.spotify.com/v1/me',
+//       headers: {
+//         'Authorization': 'Bearer ' + spotify_token
+//       },
+//       success: (response) => {
+//
+//         // $('#login').hide();
+//         // $('#loggedin').show();
+//
+//         usrID = response.id;
+//         usrCountry = response.country;
+//         usrNameSpotify = response.display_name;
+//         usrImageURL = '';
+//         usrImage = '';
+//
+//         if (response.images[0] != null) {
+//           usrImageURL = response.images[0].url;
+//         }
+//
+//         if (usrImageURL !== '') {
+//           usrImage = '<img src=""' + usrImageURL + '>'
+//         }
+//
+//         ////BRING BACK vvvvv
+//
+//         // if (usrNameSpotify === null) {
+//         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
+//         // } else {
+//         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
+//         // }
+//
+//       },
+//       error: (xhr, data) => {
+//         window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/index.html';
+//       }
+//     });
+//   } else {
+//     window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/index.html';
+//   }
+//
+//   // Start-Button
+//   $('.generate-playlist').click(function() {
+//
+//     //Prevent starting the export twice
+//     if (exportActive == true) {
+//       return;
+//     } else(exportActive = true);
+//
+//       //Reset some of the global values when the start-button is clicked
+//       globalArtists = [];
+//       playlistID = null;
+//       multipleMatches = [];
+//       withoutMatches = [];
+//       addedCount = 0;
+//       totalReleases = 0;
+//       adedArtistCount = 0;
+//
+//       labelNameDiscogs = $('.generate-playlist-input').val();
+//
+//       $('#imageDiv').empty();
+//       // $('#progressDiv').removeClass('hide');
+//       // updateProgressBar(0);
+//
+//       //Start after a timeout so the Browser has time to display the changes
+//       setTimeout(getCollection, 10, userNameDiscogs, 1);
+//     });
+//
+//     $('.generate-playlist').hover(function() {
+//       $(this).css('cursor', 'pointer');
+//     });
+//
+//     // Make the user choose the right release
+//     $('#releasesAdded').on('hidden.bs.modal', function(e) {
+//       exportMultipleMatches();
+//     });
+//
+//     // And again after the modal has been hidden
+//     $('#bestMatch').on('hidden.bs.modal', function(e) {
+//       exportMultipleMatches();
+//     });
+//
+//     // Create Playlist
+//     $('#collectionFetched').on('hidden.bs.modal', function(e) {
+//       createPlaylist();
+//     });
+//
+//     // Set the progress bar to 100% in the end
+//     $('#noMatch').on('hidden.bs.modal', function(e) {
+//       updateProgressBar(100);
+//     });
+//   });
