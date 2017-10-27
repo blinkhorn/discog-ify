@@ -36,13 +36,26 @@ main {
 
 .label-form {
   margin: 0 auto;
-  max-width: 50vh;
+  max-width: 60vh;
   display: flex;
   flex-direction: column;
 }
 
-.generate-playlist {
+.generate-playlist, .generate-playlist-input {
+  background: #1DB954;
   margin-left: 0.6em;
+}
+
+.generate-playlist-input {
+  border-style: none;
+  margin-left: 0;
+}
+
+.spotify-icon {
+  background: url(../images/spotify-icon.svg);
+  width: 16px;
+  height: 16px;
+  display: inline-block;
 }
 
 .github-icon {
