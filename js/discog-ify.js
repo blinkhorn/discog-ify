@@ -7,7 +7,7 @@ $(document).ready(() => {
   // Login
   $('#login-button').click( () => {
 
-    let mykey = d130bae62ec14aedaa24895e76ced81b;
+    let mykey = config.SPOTIFY_KEY;
     let redirect_uri = 'https://blinkhorn.github.io/discog-ify/select.html';
 
     //add state
