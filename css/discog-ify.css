@@ -29,8 +29,15 @@ main {
 }
 
 #login-button {
-  background: #2FD566;
-  margin: 3px;
+  background: #1DB954;
+  margin: 0.6em;
+}
+
+.spotify-icon {
+  background: url(../images/spotify-icon.svg);
+  width: 16px;
+  height: 16px;
+  display: inline-block;
 }
 
 .more-info {
@@ -61,15 +68,15 @@ section p {
   text-align: justify;
 }
 
-.github-icon {
-  background: url(../images/github-icon.svg) left top;
+.dark-github-icon {
+  background: url(../images/dark-github-icon.svg) left top;
   width: 16px;
   height: 16px;
   display: inline-block;
 }
 
-.dark-github-icon {
-  background: url(../images/dark-github-icon.svg) left top;
+.github-icon {
+  background: url(../images/github-icon.svg) left top;
   width: 16px;
   height: 16px;
   display: inline-block;
@@ -82,7 +89,7 @@ section p {
 }
 
 .footer-content a {
-  color: #445448 !important;
+  color: #4E6153 !important;
   text-decoration: none !important;
 }
 

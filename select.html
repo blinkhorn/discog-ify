@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
 
 <head>
   <title>Discog-ify - Select Discography</title>
   <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
   <link rel='stylesheet' href='css/select.css'>
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css' integrity='sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb' crossorigin='anonymous'>
 </head>
 
 <body class='site'>
@@ -29,10 +29,10 @@
             <option value='rs-records'>R&S Records</option>
             <option value='dekmantel'>Dekmantel</option>
           </select>
-          <input type='submit' value='Save'>
+          <button class='generate-playlist'><span class='spotify-icon'></span><input class='generate-playlist-input' type='submit' value='Generate Playlist'></button>
         </form>
       </div>
-      <div class='artist-form'>
+      <!-- <div class='artist-form'>
         <form action='' method='get'>
           <label for='GET-artist'>Artist:</label>
           <select id='GET-artist' name='aritst'>
@@ -42,14 +42,132 @@
           </select>
           <input type='submit' value='Save'>
         </form>
-      </div>
+      </div> -->
     </section>
-  </main>
 
+    <!-- Modal: error -->
+   <div id='errorModal' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header'>
+                   <h4 class='modal-title'><span class='icon-notification'></span> Error</h4>
+               </div>
+               <div class='modal-body'>
+                   <p id='errorModalText' style='color:black'></p>
+               </div>
+               <div class='modal-footer'>
+                   <button id='errorOKButton' class='btn btn-large btn-danger' data-toggle='modal' data-target='#errorModal'>OK</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <!-- Modal: collection fetched -->
+   <div id='collectionFetched' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header'>
+                   <h4 class='modal-title'>Collection fetched</h4>
+               </div>
+               <div class='modal-body'>
+                   <p id='collectionFetchedText' style='color:black'></p>
+               </div>
+               <div class='modal-footer'>
+                   <button id='collectionFetchedButton' class='btn btn-large btn-success' data-toggle='modal' data-target='#collectionFetched'><span class='icon-Converted_file_4fe041e8'></span><span class='icon-spotify'></span> Create Playlist</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+
+
+   <!-- Modal: Playlist created -->
+   <div id='playlistCreated' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header'>
+                   <h4 class='modal-title'>Playlist created</h4>
+               </div>
+               <div class='modal-body'>
+                   <p id='playlistCreatedText' style='color:black'></p>
+               </div>
+               <div class='modal-footer'>
+                   <button id='beginExportButton' class='btn btn-large btn-success' data-toggle='modal' data-target='#playlistCreated'><span class='glyphicon glyphicon-record' aria-hidden='true'></span> Fill with tracks!</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+
+   <!-- Modal: X Releases added -->
+   <div id='releasesAdded' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header'>
+                   <h4 class='modal-title'>Tracks added to your playlist</h4>
+               </div>
+               <div class='modal-body'>
+                   <p id='releasesAddedText' style='color:black'></p>
+               </div>
+               <div class='modal-footer'>
+                   <button id='okButton' class='btn btn-large btn-success' data-toggle='modal' data-target='#releasesAdded'>Ok</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+   <!-- Modal: No match -->
+   <div id='noMatch' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header'>
+                   <h4 class='modal-title'>No match on Spotify</h4>
+               </div>
+               <div class='modal-body'>
+                   <p id='noMatchText' style='color:black'>Unfortunately, the Spotify Search API didn't return any results for some of the releases in your Discogs collection. This might happen because the artist doesn't want his songs on Spotify, or the release is unavailable in your country. It is also possible that a release has different titles on Discogs and Spotify, so maybe a manual search in your Spotify App will get you the correct result for the following releases:</p>
+                   <div id='noMatchDiv'></div>
+               </div>
+               <div class='modal-footer'>
+                   <button id='closeButton' class='btn btn-large btn-success' data-toggle='modal' data-target='#noMatch'>Close</button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+   <!-- Modal: Coose best match -->
+   <div id='bestMatch' class='modal fade'>
+       <div class='modal-dialog'>
+           <div class='modal-content'>
+               <div class='modal-header' id='bestMatchHeader'>
+                   <h4 class='modal-title'>Choose the best match</h4>
+               </div>
+               <div class='modal-body'>
+                   <p style='color:black'>We found more than one possible match on Spotify. Please choose from the list below:</p>
+                   <div id='matchfinder'>
+                       <div id='spotifyDiv'>
+                       </div>
+                   </div>
+               </div>
+               <div class='modal-footer'>
+                   <button id='noMatchButton' class='btn btn-large btn-default' data-toggle='modal' data-target='#bestMatch' onClick='exportMultipleMatches()'></button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+  </main>
+  <footer>
+    <div class='footer-content'>
+      <p>Built by <a href='https://github.com/blinkhorn/'><span class='github-icon'></span> blinkhorn</a> in October, 2017</p>
+    </div>
+  </footer>
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+  <script src='https://code.jquery.com/jquery-3.2.1.slim.min.js' integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN' crossorigin='anonymous'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js' integrity='sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh' crossorigin='anonymous'></script>
+  <script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js' integrity='sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ' crossorigin='anonymous'></script>
   <script type='text/javascript' src='js/config.js'></script>
   <script src='js/select.js'></script>
 </body>

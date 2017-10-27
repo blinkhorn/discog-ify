@@ -7,8 +7,8 @@ $(document).ready(() => {
   // Login
   $('#login-button').click( () => {
 
-    let mykey = config.MY_KEY;
-    let redirect_uri = 'http://localhost:8888/callback';
+    let mykey = config.SPOTIFY_KEY;
+    let redirect_uri = 'file:///Users/Tiptoe/wdi/projects/discog-ify/select.html';
 
     //add state
 
