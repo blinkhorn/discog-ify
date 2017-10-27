@@ -1,0 +1,6 @@
+const config = {
+  SPOTIFY_KEY : 'd130bae62ec14aedaa24895e76ced81b',
+  SPOTIFY_SECRET_KEY : '38a47684911c40cab05e5ad7f2703bbb',
+  DISCOGS_KEY : 'lBpUvlqVdhpEmETyEQET',
+  DISCOGS_SECRET_KEY : 'rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
+}
