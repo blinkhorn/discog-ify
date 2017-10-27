@@ -188,11 +188,11 @@ const aLReleases = function addLabelReleases(discogsResult) {
 //
 //       },
 //       error: (xhr, data) => {
-//         window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/index.html';
+//         window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
 //       }
 //     });
 //   } else {
-//     window.location = 'file:///Users/Tiptoe/wdi/projects/discog-ify/index.html';
+//     window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
 //   }
 //
 //   // Start-Button

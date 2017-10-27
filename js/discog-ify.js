@@ -8,7 +8,7 @@ $(document).ready(() => {
   $('#login-button').click( () => {
 
     let mykey = config.SPOTIFY_KEY;
-    let redirect_uri = 'file:///Users/Tiptoe/wdi/projects/discog-ify/select.html';
+    let redirect_uri = 'https://blinkhorn.github.io/discog-ify/select.html';
 
     //add state
 
