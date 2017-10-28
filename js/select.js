@@ -476,6 +476,7 @@ function updateProgressBar(percent) {
 
     $('.progress-bar').css('width', percent + '%').attr('aria-valuenow', percent);
     $('#progressNumber').html(percent + '%');
+  }
 
 
 /************************************
