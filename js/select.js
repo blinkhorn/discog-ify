@@ -60,13 +60,11 @@ function getURLParams() {
   while (result = regex.exec(totalParams)) { //while exec finds regex in totalParams
     urlParams[result[1]] = decodeURIComponent(result[2]);
   }
-  console.log(urlParams);
   return urlParams;
 };
 
 const params = getURLParams();
 spotify_token = params.access_token;
-console.log('spotify token:', spotify_token)
 
 // ************WILL IMPLEMENT AFTER MVP COMPLETE *********************
 //prevents duplicate artists from being in the global array. If the array contains
@@ -133,116 +131,463 @@ const aLReleases = function addLabelReleases(discogsResult) {
   });
 };
 
+/** Creates a new playlist in the user's Spotify account, using the Discogs username */
+function createPlaylist() {
+
+    $.ajax({
+        url: 'https://api.spotify.com/v1/users/' + encodeURIfix(userID) + '/playlists',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        data: JSON.stringify({
+            "name": playlistName,
+            "public": true
+
+        }),
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        success: function (result) {
+            playlistID = result.id;
+
+            updateProgressBar(20);
+
+            exportToSpotify();
+
+        },
+        error: function (request, xhr, data) {
+            errorJSON = request.responseJSON;
+            message = errorJSON.error.message;
+
+            $('#errorModalText').html("Something went wrong while creating a Spotify playlist: " + xhr.status + ". Please try again. (" + message + ")");
+            $("#errorModal").modal('show');
+
+        }
+    });
+
+}
+/** Gets the next artist from the global array and exports the artist's releases to Spotify */
+function exportToSpotify() {
+
+    if (globalArtists.length > 0) {
+
+        var artist = globalArtists[0];
+        globalArtists.splice(0, 1);
+
+        var releases = artist.releases;
+
+        $.each(releases, function (pos, release) {
+
+            searchReleaseOnSpotify(release);
+
+        });
+
+        adedArtistCount++;
+
+        //Update Progress AND export next artist
+        updateProgress();
+
+    } else {
+
+        $('#releasesAddedText').empty();
+        $('#releasesAddedText').append(addedCount + " releases were already added to your Spotify playlist automatically. ");
+
+        if (multipleMatches.length === 1) {
+            $('#releasesAddedText').append("For the next release, we will need a little help from you.");
+        } else if (multipleMatches.length >= 1) {
+            $('#releasesAddedText').append("For the following " + multipleMatches.length + " releases, we will need a little help from you.");
+        }
+
+        $("#releasesAdded").modal('show');
+
+    }
+
+}
+/** If there are releases with multiple possible matches, we display a modal to make the user decide
+ * which is the right one */
+function exportMultipleMatches() {
+
+    if (multipleMatches.length > 0) {
+
+        var match = multipleMatches[0];
+
+        multipleMatches.splice(0, 1);
+
+        $('#bestMatchHeader').empty();
+        $('#spotifyDiv').empty();
+
+        var release = match.release;
+        var yearString = (release.year != 0) ? " (" + release.year + ")" : "";
+
+
+        $('#bestMatchHeader').html("<h4 class='modal-title'>Choose the best match for <b>" + release.title + "</b> by " + release.artistName + yearString + "</h4>");
+
+        var matches = match.matches;
+
+        $.each(matches, function (pos, album) {
+
+            var name = album.name;
+            var albumID = album.id;
+            var imageURL = '../record.png';
+
+            if (album.images.length !== 0) {
+                imageURL = album.images[0].url;
+            }
+
+            $('#spotifyDiv').append('<div><img src="' + imageURL + '" width="20%" style="display:inline-block; margin:10px; vertical-align:top"><div style="display:inline-block; width:70%"><h4>' + album.name + '</h4><button id="' + albumID + ' ' + imageURL + '" type="button" class="btn btn-success" onClick = "saveAlbumFromMulti(this.id)"><span class="icon-checkmark"></span> Choose this</button></div></div>');
+
+        });
+
+        $('#noMatchButton').html('<span class="icon-cancel-circle"></span> None of the above');
+
+        $("#bestMatch").modal('show');
+
+    } else {
+        updateProgressBar(90);
+        showNoMatch();
+    }
+
+}
+
+
+/** Reacts to the button in the modal and saves the chosen release to the playlist */
+function saveAlbumFromMulti(idAndURL) {
+
+    $("#bestMatch").modal('hide');
+
+    var seperated = idAndURL.split(" ");
+
+    saveAlbumToPlaylist(seperated[0], seperated[1]);
+
+}
+
+
+/** Displays the modal with all releases without a match on Spotify. End of the export. */
+function showNoMatch() {
+
+    $('#noMatchDiv').empty();
+
+    if (withoutMatches.length > 0) {
+
+        $('#noMatchDiv').append("<ul>");
+
+        $.each(withoutMatches, function (pos, release) {
+
+            $('#noMatchDiv').append("<li><b>" + release.artistName + "</b>: " + release.title + " (" + release.year + ")" + "  </li>")
+        });
+
+        $('#noMatchDiv').append("</ul>");
+
+        $("#noMatch").modal('show');
+        exportActive = false;
+
+    }
+
+}
+
+
+/** Start a search on Spotify and handle the result */
+function searchReleaseOnSpotify(release) {
+
+    var rTitle = release.title;
+
+    if (rTitle.endsWith("EP") || rTitle.endsWith("LP")) {
+        rTitle = rTitle.slice(0, -2).trim();
+    }
+
+    var query = 'album:"' + rTitle + '" artist:"' + release.artistName + '"';
+
+    $.ajax({
+        url: 'https://api.spotify.com/v1/search',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        data: {
+            q: query,
+            type: 'album',
+            market: userCountry
+        },
+        type: "GET",
+        success: function (result) {
+
+            handleResultFromSpotify(result, release);
+        },
+        error: function (request, xhr, data) {
+
+            $('#errorModalText').html("Something went wrong while searching on Spotify: " + xhr.status + ". Please try again.");
+            $("#errorModal").modal('show');
+
+        },
+        async: false
+    });
+}
+
+
+/** Decides if any album from the Spotify-result is a perfect match for the given release,
+ * or if the user has to choose the right one manually */
+function handleResultFromSpotify(result, release) {
+
+    //Possible matches
+    var items = result.albums.items;
+
+    //nothing found
+    if (items.length === 0) {
+        withoutMatches.push(release);
+        return;
+    }
+
+    var done = false;
+
+    //Loop to find exact matches
+    $.each(items, function (pos, album) {
+
+        var name = album.name;
+
+        //exact match
+        if (!done && name.toLowerCase() === release.title.toLowerCase()) {
+
+            done = true;
+
+            var albumID = album.id;
+            var imageURL = '../record.png';
+
+            if (album.images.length !== 0) {
+                imageURL = album.images[0].url;
+            }
+
+            saveAlbumToPlaylist(albumID, imageURL);
+
+            return;
+        }
+    });
+
+    //One and only match - hope it's the right one
+    if (!done && items.length === 1) {
+
+        done = true;
+        var album = items[0];
+
+        var albumID = album.id;
+        var imageURL = '../record.png';
+
+        if (album.images.length !== 0) {
+            imageURL = album.images[0].url;
+        }
+
+        saveAlbumToPlaylist(albumID, imageURL);
+
+        return;
+    }
+
+    //More than one possible match - let the user decide
+    if (!done && items.length > 1) {
+
+        var m = new multipleMatch(release, items);
+        multipleMatches.push(m);
+
+        done = true;
+        return;
+    }
+
+}
+
+/** Gets an album's tracks and has them saved to the playlist. Adds the cover to the site */
+function saveAlbumToPlaylist(albumID, imageURL) {
+
+    return $.ajax({
+        url: 'https://api.spotify.com/v1/albums/' + albumID + '/tracks',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        data: {
+            market: userCountry
+        },
+        type: "GET",
+        success: function (result) {
+
+            saveAlbumTracks(result);
+
+            $('<img src="' + imageURL + '">').load(function () {
+                $(this).width('15%').css("margin", "2.5%").appendTo($('#imageDiv'));
+            });
+
+        },
+        error: function (request, xhr, data) {
+            $('#errorModalText').html("Something went wrong while getting the album tracks: " + xhr.status + ". Please try again.");
+            $("#errorModal").modal('show');
+        },
+        async: false
+    });
+
+}
+
+
+/** Saves tracks to the playlist */
+function saveAlbumTracks(tracks) {
+
+    var spotifyURIs = [];
+
+    $.each(tracks.items, function (pos, item) {
+        spotifyURIs.push(item.uri);
+    });
+
+    return $.ajax({
+        url: 'https://api.spotify.com/v1/users/' + encodeURIfix(userID) + '/playlists/' + playlistID + '/tracks',
+        headers: {
+            'Authorization': 'Bearer ' + access_token
+        },
+        data: JSON.stringify({
+            "uris": spotifyURIs
+        }),
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        success: function (result) {
+            addedCount++;
+
+        },
+        error: function (request, xhr, data) {
+
+            $('#errorModalText').html("Something went wrong while saving the tracks to your playlist: " + xhr.status + ". Please try again.");
+            $("#errorModal").modal('show');
+
+        },
+        async: false
+    });
+}
+
+
+/** Gets parameters from the hash of the URL */
+function getHashParams() {
+    var hashParams = {};
+    var e, r = /([^&;=]+)=?([^&;]*)/g,
+        q = window.location.hash.substring(1);
+    while (e = r.exec(q)) {
+        hashParams[e[1]] = decodeURIComponent(e[2]);
+    }
+    return hashParams;
+}
+
+
+/** Update the progressbar to the given number in percent */
+function updateProgressBar(percent) {
+
+    percent = Math.round(percent);
+
+    $('.progress-bar').css('width', percent + '%').attr('aria-valuenow', percent);
+    $('#progressNumber').html(percent + '%');
+
+
 /************************************
 //                                  *
 //          Functionality           *
 //                                  *
 //***********************************/
 
-// $(document).ready(() => {
-//
-//   $('.generate-playlist').hover(function () {
-//        $(this).css('cursor', 'pointer');
-//    });
-//
-//   const params = getURLParams();
-//   spotify_token = params.access_token;
-//   //Set exportIsActive to false on page load in the event that the previous
-//   //export did not complete
-//   exportIsActive = false;
-//
-//   ///////////REWORK /////////
-//   // Check the login state; set usrID, usrCountry, and usrNameSpotify
-//   if (spotify_token) {
-//     $.ajax({
-//       url: 'https://api.spotify.com/v1/me',
-//       headers: {
-//         'Authorization': 'Bearer ' + spotify_token
-//       },
-//       success: (response) => {
-//
-//         // $('#login').hide();
-//         // $('#loggedin').show();
-//
-//         usrID = response.id;
-//         usrCountry = response.country;
-//         usrNameSpotify = response.display_name;
-//         usrImageURL = '';
-//         usrImage = '';
-//
-//         if (response.images[0] != null) {
-//           usrImageURL = response.images[0].url;
-//         }
-//
-//         if (usrImageURL !== '') {
-//           usrImage = '<img src=""' + usrImageURL + '>'
-//         }
-//
-//         ////BRING BACK vvvvv
-//
-//         // if (usrNameSpotify === null) {
-//         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
-//         // } else {
-//         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
-//         // }
-//
-//       },
-//       error: (xhr, data) => {
-//         window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-//       }
-//     });
-//   } else {
-//     window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-//   }
-//
-//   // Start-Button
-//   $('.generate-playlist').click(function() {
-//
-//     //Prevent starting the export twice
-//     if (exportActive == true) {
-//       return;
-//     } else(exportActive = true);
-//
-//       //Reset some of the global values when the start-button is clicked
-//       globalArtists = [];
-//       playlistID = null;
-//       multipleMatches = [];
-//       withoutMatches = [];
-//       addedCount = 0;
-//       totalReleases = 0;
-//       adedArtistCount = 0;
-//
-//       labelNameDiscogs = $('.generate-playlist-input').val();
-//
-//       $('#imageDiv').empty();
-//       // $('#progressDiv').removeClass('hide');
-//       // updateProgressBar(0);
-//
-//       //Start after a timeout so the Browser has time to display the changes
-//       setTimeout(getCollection, 10, userNameDiscogs, 1);
-//     });
-//
-//     $('.generate-playlist').hover(function() {
-//       $(this).css('cursor', 'pointer');
-//     });
-//
-//     // Make the user choose the right release
-//     $('#releasesAdded').on('hidden.bs.modal', function(e) {
-//       exportMultipleMatches();
-//     });
-//
-//     // And again after the modal has been hidden
-//     $('#bestMatch').on('hidden.bs.modal', function(e) {
-//       exportMultipleMatches();
-//     });
-//
-//     // Create Playlist
-//     $('#collectionFetched').on('hidden.bs.modal', function(e) {
-//       createPlaylist();
-//     });
-//
-//     // Set the progress bar to 100% in the end
-//     $('#noMatch').on('hidden.bs.modal', function(e) {
-//       updateProgressBar(100);
-//     });
-//   });
+$(document).ready(() => {
+
+  $('.generate-playlist').hover(function () {
+       $(this).css('cursor', 'pointer');
+   });
+
+  const params = getURLParams();
+  spotify_token = params.access_token;
+  //Set exportIsActive to false on page load in the event that the previous
+  //export did not complete
+  exportIsActive = false;
+
+  ///////////REWORK /////////
+  // Check the login state; set usrID, usrCountry, and usrNameSpotify
+  if (spotify_token) {
+    $.ajax({
+      url: 'https://api.spotify.com/v1/me',
+      headers: {
+        'Authorization': 'Bearer ' + spotify_token
+      },
+      success: (response) => {
+
+        // $('#login').hide();
+        // $('#loggedin').show();
+
+        usrID = response.id;
+        usrCountry = response.country;
+        usrNameSpotify = response.display_name;
+        usrImageURL = '';
+        usrImage = '';
+
+        if (response.images[0] != null) {
+          usrImageURL = response.images[0].url;
+        }
+
+        if (usrImageURL !== '') {
+          usrImage = '<img src=""' + usrImageURL + '>'
+        }
+
+        ////BRING BACK vvvvv
+
+        // if (usrNameSpotify === null) {
+        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
+        // } else {
+        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
+        // }
+
+      },
+      error: (xhr, data) => {
+        window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+      }
+    });
+  } else {
+    window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+  }
+
+  // Start-Button
+  $('.generate-playlist').click(function() {
+
+    //Prevent starting the export twice
+    if (exportActive === true) {
+      return;
+    } else(exportActive = true);
+
+      //Reset some of the global values when the start-button is clicked
+      globalArtists = [];
+      playlistID = null;
+      multipleMatches = [];
+      withoutMatches = [];
+      addedCount = 0;
+      totalReleases = 0;
+      adedArtistCount = 0;
+
+      labelNameDiscogs = $('.generate-playlist-input').val();
+
+      $('#imageDiv').empty();
+      // $('#progressDiv').removeClass('hide');
+      // updateProgressBar(0);
+
+      //Start after a timeout so the Browser has time to display the changes
+      setTimeout(getCollection, 10, userNameDiscogs, 1);
+    });
+
+    $('.generate-playlist').hover(function() {
+      $(this).css('cursor', 'pointer');
+    });
+
+    // Make the user choose the right release
+    $('#releasesAdded').on('hidden.bs.modal', function(e) {
+      exportMultipleMatches();
+    });
+
+    // And again after the modal has been hidden
+    $('#bestMatch').on('hidden.bs.modal', function(e) {
+      exportMultipleMatches();
+    });
+
+    // Create Playlist
+    $('#collectionFetched').on('hidden.bs.modal', function(e) {
+      createPlaylist();
+    });
+
+    // Set the progress bar to 100% in the end
+    $('#noMatch').on('hidden.bs.modal', function(e) {
+      updateProgressBar(100);
+    });
+  });
