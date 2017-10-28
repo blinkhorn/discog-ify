@@ -14,6 +14,7 @@ let multipleMatches;
 let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
+let exportIsActive = false;
 
 let userNameDiscogs;
 
@@ -279,7 +280,7 @@ function showNoMatch() {
         $('#noMatchDiv').append("</ul>");
 
         $("#noMatch").modal('show');
-        exportActive = false;
+        exportIsActive = false;
 
     }
 
@@ -545,9 +546,9 @@ $(document).ready(() => {
   $('.generate-playlist').click(function() {
 
     //Prevent starting the export twice
-    if (exportActive === true) {
+    if (exportIsActive === true) {
       return;
-    } else(exportActive = true);
+    } else(exportIsActive = true);
 
       //Reset some of the global values when the start-button is clicked
       globalArtists = [];
