@@ -617,7 +617,7 @@ $(document).ready(() => {
     if (exportIsActive === true) {
       return;
     } else {
-      (exportIsActive = true);
+      exportIsActive = true;
 
       //Reset some of the global values when the start-button is clicked
       globalArtists = [];
@@ -628,7 +628,7 @@ $(document).ready(() => {
       totalReleases = 0;
       adedArtistCount = 0;
 
-      labelNameDiscogs = $('.generate-playlist-input').val();
+      labelNameDiscogs = $('#GET-label').val();
 
       $('#imageDiv').empty();
       // $('#progressDiv').removeClass('hide');
