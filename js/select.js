@@ -24,11 +24,10 @@ let labelNameDiscogs;
 //                                  *
 //***********************************/
 class Release {
-  constructor(title, artistName, year, label) {
+  constructor(title, artistName, year) {
     this.title = title;
     this.artistName = artistName;
     this.year = year;
-    this.label;
   }
 }
 
@@ -79,56 +78,32 @@ spotify_token = params.access_token;
 //   return null;
 // };
 
-//prevents duplicate labels from being in the global array. If the array contains
-//the label's name, it returns the position in the array; otherwise it returns null
-const containsLabel = function labelsContainsName(name) {
-  for (var i = 0; i < globalLabels.length; i += 1) {
-    if (globalLabels[i].name === name) {
-      return i;
-    }
-  }
-  return null;
-};
-
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
-const aLReleases = function addLabelReleases(discogsResult) {
+const aLReleases = function addLabelReleases(discogsResult, labelName) {
 
   $.each(discogsResult.releases, (release) => {
 
     let releaseTitle = release.title;
     let releaseYear = release.year;
-    let releaseArtists = release.artists;
+    let releaseArtists = release.artist;
     let releaseArtistName = releaseArtists[0].name;
-    let releaseLabelName = release.label;
 
-    //Some artists/labels on Discogs have a number in closing round
-    //parenthesis behind their name — we prevent these here
+    //Some artists on Discogs have a number in closing round
+    //parenthesis behind their name — I prevent these here
     let splitName = releaseArtistName.split(/([(]\d+[)].*)/);
     let artistName = splitName[0];
-    let splitLabel = releaseLabelName.split(/([(]\d+[)].*)/);
-    let releaseLabel = splitLabel[0];
 
-    let theRelease = new Release(releaseTitle, artistName, releaseYear, label);
+    let theRelease = new Release(releaseTitle, artistName, releaseYear);
 
-    //find the position of the
-    let globalArrayPosition = labelsContainsName(releaseLabelName);
-
-    if (globalArrayPosition === null) {
-
-      //Create new label with new label-array and add artist to the global array
-      globalLabels.push(new Label(releaseLabel, new Array(theRelease)));
-      totalReleases += 1;
-      totalLabels += 1;
-
-    } else {
-      //Access label from the global array
-      let theLabel = globalLabels[globalArrayPosition];
-
-      //Add this release to the label's releases
-      theLabel.releases.push(theRelease);
-      totalReleases += 1;
+    //if this is the first release, create a new label object
+    if (totalReleases === 0) {
+      let theLabel = new Label(labelName, releases = []);
     }
+    //push the release onto theLabel and increment totalReleases
+    theLabel.releases.push(theRelease);
+    totalReleases += 1;
+
   });
 };
 
@@ -513,11 +488,14 @@ function updateProgressBar(percent) {
 function getLabelDiscog(labelName, page) {
 
   $.ajax({
-    url: 'https://api.discogs.com/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
+    url: 'https://api.discogs.com/oauth/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
     type: "GET",
+    headers = {
+      'User-Agent': 'Discog-ify/1.0 +https://blinkhorn.github.io/discog-ify/'
+    }
     success: function(result) {
 
-      addLabelReleases(result);
+      addLabelReleases(result, labelName);
 
       var currentPage = result.pagination.page;
       var pages = result.pagination.pages;
@@ -641,7 +619,7 @@ $(document).ready(() => {
     //Prevent starting the export twice
     if (exportIsActive === true) {
       return;
-    } else
+    } else {
       (exportIsActive = true);
 
       //Reset some of the global values when the start-button is clicked
@@ -661,29 +639,30 @@ $(document).ready(() => {
 
       //Start after a timeout so the Browser has time to display the changes
       setTimeout(getLabelDiscog, 10, labelNameDiscogs, 1);
-    });
-
-    $('.generate-playlist').hover(function() {
-      $(this).css('cursor', 'pointer');
-    });
-
-    // Make the user choose the right release
-    $('#releasesAdded').on('hidden.bs.modal', function(e) {
-      exportMultipleMatches();
-    });
-
-    // And again after the modal has been hidden
-    $('#bestMatch').on('hidden.bs.modal', function(e) {
-      exportMultipleMatches();
-    });
-
-    // Create Playlist
-    $('#collectionFetched').on('hidden.bs.modal', function(e) {
-      createPlaylist();
-    });
-
-    // Set the progress bar to 100% in the end
-    $('#noMatch').on('hidden.bs.modal', function(e) {
-      updateProgressBar(100);
-    });
+    }
   });
+
+  $('.generate-playlist').hover(function() {
+    $(this).css('cursor', 'pointer');
+  });
+
+  // Make the user choose the right release
+  $('#releasesAdded').on('hidden.bs.modal', function(e) {
+    exportMultipleMatches();
+  });
+
+  // And again after the modal has been hidden
+  $('#bestMatch').on('hidden.bs.modal', function(e) {
+    exportMultipleMatches();
+  });
+
+  // Create Playlist
+  $('#collectionFetched').on('hidden.bs.modal', function(e) {
+    createPlaylist();
+  });
+
+  // Set the progress bar to 100% in the end
+  $('#noMatch').on('hidden.bs.modal', function(e) {
+    updateProgressBar(100);
+  });
+});
