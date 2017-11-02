@@ -660,7 +660,7 @@ $(document).ready(() => {
       // updateProgressBar(0);
 
       //Start after a timeout so the Browser has time to display the changes
-      setTimeout(getCollection, 10, labelNameDiscogs, 1);
+      setTimeout(getLabelDiscog, 10, labelNameDiscogs, 1);
     });
 
     $('.generate-playlist').hover(function() {
