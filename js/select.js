@@ -488,8 +488,7 @@ function updateProgressBar(percent) {
 function getLabelDiscog(labelName, page) {
 
   $.ajax({
-    url: 'https://api.discogs.com/oauth/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
-    headers: {'User-Agent': 'Discog-ify/1.0 +https://blinkhorn.github.io/discog-ify/'},
+    url: 'https://api.discogs.com/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
     type: "GET",
     success: function(result) {
 
