@@ -485,7 +485,7 @@ function updateProgressBar(percent) {
 // }
 
 /** Entry point. Fetches the user's collection from Discogs */
-function getLabelDiscog(labelName, page) {
+function getLabelDiscog(labelName = 245, page) {
 
   $.ajax({
     url: 'https://api.discogs.com/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
