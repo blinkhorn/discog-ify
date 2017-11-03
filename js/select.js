@@ -106,6 +106,10 @@ function addLabelReleases(discogsResult, labelName) {
   });
 };
 
+function encodeURIfix(str) {
+    return encodeURIComponent(str).replace(/!/g, '%21');
+}
+
 /** Creates a new playlist in the user's Spotify account, using the Discogs username */
 function createPlaylist() {
 
