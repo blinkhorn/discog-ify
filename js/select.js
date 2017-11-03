@@ -80,7 +80,7 @@ spotify_token = params.access_token;
 
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
-const aLReleases = function addLabelReleases(discogsResult, labelName) {
+function addLabelReleases(discogsResult, labelName) {
 
   $.each(discogsResult.releases, (release) => {
 
