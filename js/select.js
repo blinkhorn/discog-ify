@@ -85,6 +85,8 @@ function addLabelReleases(discogsResult, labelName) {
   $.each(discogsResult.releases, (release) => {
 
     let releaseTitle = release.title;
+    console.log('release object', release);
+    console.log('title', releaseTitle);
     let releaseYear = release.year;
     let releaseArtists = release.artist;
     let releaseArtistName = releaseArtists[0].name;
