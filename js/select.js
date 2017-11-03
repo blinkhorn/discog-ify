@@ -488,11 +488,11 @@ function updateProgressBar(percent) {
 function getLabelDiscog(labelName = 245, page) {
 
   $.ajax({
-    url: 'https://api.discogs.com/labels/' + labelName + '/releases?page=' + page + '&per_page=100',
+    url: 'https://api.discogs.com/labels/' + 245 + '/releases?page=' + page + '&per_page=100',
     type: "GET",
     success: function(result) {
 
-      addLabelReleases(result, labelName);
+      addLabelReleases(result, 245);
 
       var currentPage = result.pagination.page;
       var pages = result.pagination.pages;
