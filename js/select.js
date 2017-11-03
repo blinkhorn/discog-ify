@@ -82,8 +82,9 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function addLabelReleases(discogsResult, labelName) {
 
-  $.each(discogsResult.releases, (pos, release) => {
+  let theLabel = new Label(labelName, releases = [])
 
+  $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
     console.log('release object', release);
     console.log('title', releaseTitle);
@@ -98,10 +99,6 @@ function addLabelReleases(discogsResult, labelName) {
 
     let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
 
-    //if this is the first release, create a new label object
-    if (totalReleases === 0) {
-      let theLabel = new Label(labelName, releases = []);
-    }
     //push the release onto theLabel and increment totalReleases
     theLabel.releases.push(theRelease);
     totalReleases += 1;
