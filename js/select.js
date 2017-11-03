@@ -88,15 +88,15 @@ function addLabelReleases(discogsResult, labelName) {
     console.log('release object', release);
     console.log('title', releaseTitle);
     let releaseYear = release.year;
-    let releaseArtists = release.artist;
-    let releaseArtistName = releaseArtists[0].name;
+    let releaseArtist = release.artist;
+    // let releaseArtistName = releaseArtists[0].name;
 
     //Some artists on Discogs have a number in closing round
     //parenthesis behind their name — I prevent these here
-    let splitName = releaseArtistName.split(/([(]\d+[)].*)/);
-    let artistName = splitName[0];
+    // let splitName = releaseArtistName.split(/([(]\d+[)].*)/);
+    // let artistName = splitName[0];
 
-    let theRelease = new Release(releaseTitle, artistName, releaseYear);
+    let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
 
     //if this is the first release, create a new label object
     if (totalReleases === 0) {
