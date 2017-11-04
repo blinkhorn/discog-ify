@@ -156,6 +156,8 @@ function createPlaylist() {
 /** Gets the next artist from the global array and exports the artist's releases to Spotify */
 function exportToSpotify() {
 
+  console.log('IN exportToSpotify: label releases array', theLabel.releases);
+
   if (theLabel.releases.length > 0) {
 
     // var artist = globalArtists[0];
