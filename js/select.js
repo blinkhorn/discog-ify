@@ -292,7 +292,7 @@ function searchReleaseOnSpotify(release) {
     data: {
       q: query,
       type: 'album',
-      market: userCountry
+      market: usrCountry
     },
     type: "GET",
     success: function(result) {
@@ -386,7 +386,7 @@ function saveAlbumToPlaylist(albumID, imageURL) {
       'Authorization': 'Bearer ' + spotify_token
     },
     data: {
-      market: userCountry
+      market: usrCountry
     },
     type: "GET",
     success: function(result) {
