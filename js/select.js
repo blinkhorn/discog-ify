@@ -87,6 +87,7 @@ spotify_token = params.access_token;
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function addLabelReleases(discogsResult, labelName) {
+  var theLabel = new Label(labelName, releases = []);
 
   $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
@@ -491,8 +492,6 @@ function updateProgressBar(percent) {
 
 /** Entry point. Fetches the user's collection from Discogs */
 function getLabelDiscog(labelName = 1089886, page) {
-
-  var theLabel = new Label(labelName, releases = []);
 
   $.ajax({
     url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
