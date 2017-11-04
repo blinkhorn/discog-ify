@@ -122,7 +122,7 @@ function createPlaylist() {
   $.ajax({
     url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
     headers: {
-      'Authorization': 'Bearer ' + access_token
+      'Authorization': 'Bearer ' + spotify_token
     },
     data: JSON.stringify({"name": playlistName, "public": true}),
     type: "POST",
@@ -279,7 +279,7 @@ function searchReleaseOnSpotify(release) {
   $.ajax({
     url: 'https://api.spotify.com/v1/search',
     headers: {
-      'Authorization': 'Bearer ' + access_token
+      'Authorization': 'Bearer ' + spotify_token
     },
     data: {
       q: query,
@@ -375,7 +375,7 @@ function saveAlbumToPlaylist(albumID, imageURL) {
   return $.ajax({
     url: 'https://api.spotify.com/v1/albums/' + albumID + '/tracks',
     headers: {
-      'Authorization': 'Bearer ' + access_token
+      'Authorization': 'Bearer ' + spotify_token
     },
     data: {
       market: userCountry
@@ -411,7 +411,7 @@ function saveAlbumTracks(tracks) {
   return $.ajax({
     url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists/' + playlistID + '/tracks',
     headers: {
-      'Authorization': 'Bearer ' + access_token
+      'Authorization': 'Bearer ' + spotify_token
     },
     data: JSON.stringify({"uris": spotifyURIs}),
     type: "POST",
