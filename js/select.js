@@ -494,14 +494,14 @@ function updateProgressBar(percent) {
 // }
 
 /** Entry point. Fetches the user's collection from Discogs */
-function getLabelDiscog(labelName = 245, page) {
+function getLabelDiscog(labelName = 1089886, page) {
 
   $.ajax({
-    url: 'https://api.discogs.com/labels/' + 245 + '/releases?page=' + page + '&per_page=100',
+    url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
     type: "GET",
     success: function(result) {
 
-      addLabelReleases(result, 245);
+      addLabelReleases(result, 1089886);
 
       var currentPage = result.pagination.page;
       var pages = result.pagination.pages;
