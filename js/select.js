@@ -15,6 +15,12 @@ let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
 let exportIsActive = false;
+let usrID = '';
+let usrCountry = '';
+let usrNameSpotify = '';
+let usrImageURL = '';
+let usrImage = '';
+
 
 let labelNameDiscogs;
 
@@ -114,7 +120,7 @@ function encodeURIfix(str) {
 function createPlaylist() {
 
   $.ajax({
-    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(userID) + '/playlists',
+    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
     headers: {
       'Authorization': 'Bearer ' + access_token
     },
@@ -403,7 +409,7 @@ function saveAlbumTracks(tracks) {
   });
 
   return $.ajax({
-    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(userID) + '/playlists/' + playlistID + '/tracks',
+    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists/' + playlistID + '/tracks',
     headers: {
       'Authorization': 'Bearer ' + access_token
     },
