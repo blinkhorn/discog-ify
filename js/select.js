@@ -1,5 +1,31 @@
 /************************************
 //                                  *
+//      select.js variables         *
+//                                  *
+//***********************************/
+
+let spotify_token = null;
+let globalArtists = [];
+let globalLabels = [];
+let totalReleases = 0;
+let totalLabels = 0;
+let playlistID = null;
+let multipleMatches;
+let withoutMatches;
+let addedCount = 0;
+let adedArtistCount = 0;
+let exportIsActive = false;
+let usrID = '';
+let usrCountry = '';
+let usrNameSpotify = '';
+let usrImageURL = '';
+let usrImage = '';
+
+
+let labelNameDiscogs;
+
+/************************************
+//                                  *
 //        Class Definitions         *
 //                                  *
 //***********************************/
@@ -25,35 +51,6 @@ class Label {
     this.releases = releases;
   }
 }
-
-/************************************
-//                                  *
-//      select.js variables         *
-//                                  *
-//***********************************/
-
-let spotify_token = null;
-let globalArtists = [];
-let globalLabels = [];
-let totalReleases = 0;
-let totalLabels = 0;
-let playlistID = null;
-let multipleMatches;
-let withoutMatches;
-let addedCount = 0;
-let adedArtistCount = 0;
-let exportIsActive = false;
-let usrID = '';
-let usrCountry = '';
-let usrNameSpotify = '';
-let usrImageURL = '';
-let usrImage = '';
-let theLabel = new Label(labelName, releases = []);
-
-
-let labelNameDiscogs;
-
-
 /************************************
 //                                  *
 //      Function Expressions        *
@@ -494,6 +491,8 @@ function updateProgressBar(percent) {
 
 /** Entry point. Fetches the user's collection from Discogs */
 function getLabelDiscog(labelName = 1089886, page) {
+
+  var theLabel = new Label(labelName, releases = []);
 
   $.ajax({
     url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
