@@ -20,6 +20,7 @@ let usrCountry = '';
 let usrNameSpotify = '';
 let usrImageURL = '';
 let usrImage = '';
+let theLabel = new Label(labelName, releases = []);
 
 
 let labelNameDiscogs;
@@ -88,12 +89,8 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function addLabelReleases(discogsResult, labelName) {
 
-  let theLabel = new Label(labelName, releases = [])
-
   $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
-    console.log('release object', release);
-    console.log('title', releaseTitle);
     let releaseYear = release.year;
     let releaseArtist = release.artist;
     // let releaseArtistName = releaseArtists[0].name;
@@ -108,8 +105,8 @@ function addLabelReleases(discogsResult, labelName) {
     //push the release onto theLabel and increment totalReleases
     theLabel.releases.push(theRelease);
     totalReleases += 1;
-
   });
+  console.log('label releases array', theLabel.releases);
 };
 
 function encodeURIfix(str) {
@@ -150,37 +147,37 @@ function createPlaylist() {
 /** Gets the next artist from the global array and exports the artist's releases to Spotify */
 function exportToSpotify() {
 
-  if (globalArtists.length > 0) {
+  if (theLabel.releases.length > 0) {
 
-    var artist = globalArtists[0];
-    globalArtists.splice(0, 1);
+    // var artist = globalArtists[0];
+    // globalArtists.splice(0, 1);
 
-    var releases = artist.releases;
+    // var releases = artist.releases;
 
-    $.each(releases, function(pos, release) {
+    $.each(theLabel.releases, function(pos, release) {
 
       searchReleaseOnSpotify(release);
 
     });
 
-    adedArtistCount++;
+    // adedArtistCount++;
 
     //Update Progress AND export next artist
     updateProgress();
 
   } else {
 
-    $('#releasesAddedText').empty();
-    $('#releasesAddedText').append(addedCount + " releases were already added to your Spotify playlist automatically. ");
-
-    if (multipleMatches.length === 1) {
-      $('#releasesAddedText').append("For the next release, we will need a little help from you.");
-    } else if (multipleMatches.length >= 1) {
-      $('#releasesAddedText').append("For the following " + multipleMatches.length + " releases, we will need a little help from you.");
-    }
-
-    $("#releasesAdded").modal('show');
-
+  //   $('#releasesAddedText').empty();
+  //   $('#releasesAddedText').append(addedCount + " releases were already added to your Spotify playlist automatically. ");
+  //
+  //   if (multipleMatches.length === 1) {
+  //     $('#releasesAddedText').append("For the next release, we will need a little help from you.");
+  //   } else if (multipleMatches.length >= 1) {
+  //     $('#releasesAddedText').append("For the following " + multipleMatches.length + " releases, we will need a little help from you.");
+  //   }
+  //
+  //   $("#releasesAdded").modal('show');
+  //
   }
 
 }
