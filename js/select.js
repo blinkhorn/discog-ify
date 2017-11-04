@@ -1,5 +1,33 @@
 /************************************
 //                                  *
+//        Class Definitions         *
+//                                  *
+//***********************************/
+class Release {
+  constructor(title, artistName, year) {
+    this.title = title;
+    this.artistName = artistName;
+    this.year = year;
+  }
+}
+
+// ************WILL IMPLEMENT AFTER MVP COMPLETE *********************
+// class Artist {
+//   constructor(name, releases) {
+//     this.name = name;
+//     this.releases = releases;
+//   }
+// }
+
+class Label {
+  constructor(name, releases) {
+    this.name = name;
+    this.releases = releases;
+  }
+}
+
+/************************************
+//                                  *
 //      select.js variables         *
 //                                  *
 //***********************************/
@@ -25,33 +53,7 @@ let theLabel = new Label(labelName, releases = []);
 
 let labelNameDiscogs;
 
-/************************************
-//                                  *
-//         Release Class            *
-//                                  *
-//***********************************/
-class Release {
-  constructor(title, artistName, year) {
-    this.title = title;
-    this.artistName = artistName;
-    this.year = year;
-  }
-}
 
-// ************WILL IMPLEMENT AFTER MVP COMPLETE *********************
-// class Artist {
-//   constructor(name, releases) {
-//     this.name = name;
-//     this.releases = releases;
-//   }
-// }
-
-class Label {
-  constructor(name, releases) {
-    this.name = name;
-    this.releases = releases;
-  }
-}
 /************************************
 //                                  *
 //      Function Expressions        *
