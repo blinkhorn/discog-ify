@@ -20,6 +20,7 @@ let usrCountry = '';
 let usrNameSpotify = '';
 let usrImageURL = '';
 let usrImage = '';
+let labelName = 'Better Listen';
 
 
 let labelNameDiscogs;
@@ -51,6 +52,15 @@ class Label {
     this.releases = releases;
   }
 }
+
+/************************************
+//                                  *
+//      Global Class instance       *
+//                                  *
+//***********************************/
+var theLabel = new Label(labelName, releases = []);
+
+
 /************************************
 //                                  *
 //      Function Expressions        *
@@ -87,7 +97,6 @@ spotify_token = params.access_token;
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function addLabelReleases(discogsResult, labelName) {
-  var theLabel = new Label(labelName, releases = []);
 
   $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
