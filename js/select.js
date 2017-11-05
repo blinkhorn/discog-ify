@@ -501,7 +501,7 @@ function updateProgressBar(percent) {
 //   });
 // }
 
-/** Entry point. Fetches the user's collection from Discogs */
+/** Entry point. Fetches the user's discography from Discogs */
 function getLabelDiscog(labelName = 1089886, page) {
 
   $.ajax({
@@ -536,7 +536,7 @@ function getLabelDiscog(labelName = 1089886, page) {
           playlistName = labelNameDiscogs + "'s Complete Discography";
         }
 
-        $('#collectionFetchedText').html('We fetched a total of ' + totalReleases + ' releases from your Discogs collection.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from your collection.');
+        $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
         $("#collectionFetched").modal('show');
       }
 
