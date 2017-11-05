@@ -537,7 +537,7 @@ function getLabelDiscog(labelName = 1089886, page) {
         }
 
         $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-        $("#collectionFetched").modal('show');
+        $("#discographyFetched").modal('show');
       }
 
     },
@@ -557,7 +557,7 @@ function getLabelDiscog(labelName = 1089886, page) {
         $("#errorModal").modal('show');
 
       } else {
-        $('#errorModalText').html("Something went wrong while fetching your collection: " + xhr.status + ". Please try again.");
+        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
         $("#errorModal").modal('show');
       }
     }
@@ -671,7 +671,7 @@ $(document).ready(() => {
   });
 
   // Create Playlist
-  $('#collectionFetched').on('hidden.bs.modal', function(e) {
+  $('#discographyFetched').on('hidden.bs.modal', function(e) {
     createPlaylist();
   });
 
