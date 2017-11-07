@@ -28,13 +28,13 @@ main {
   color: #667F6D;
 }
 
-.select-forms {
+.select-forms, .search-forms {
   display: flex;
   text-align: center;
   justify-content: center;
 }
 
-.label-form {
+.label-form, .label-search {
   margin: 0 auto;
   max-width: 60vh;
   display: flex;
