@@ -96,7 +96,7 @@ spotify_token = params.access_token;
 
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
-function addLabelReleases(discogsResult, labelName) {
+function addLabelReleases(discogsResult) {
 
   $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
@@ -565,6 +565,69 @@ function getLabelDiscog(labelName = 1089886, page) {
 
 }
 
+/** Entry point for search function. Fetches the label entered from Discogs */
+function searchLabelDiscogs(labelName, page) {
+
+  $.ajax({
+    url: 'https://api.discogs.com/database/search?label=' + labelName + '&page=' + page + '&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
+    type: "GET",
+    success: function(result) {
+
+      addLabelReleases(result);
+
+      var currentPage = result.pagination.page;
+      var pages = result.pagination.pages;
+
+      //next page
+      if (currentPage < pages) {
+
+        var currentProgress = (currentPage / pages) * 20;
+        updateProgressBar(currentProgress);
+
+        var nextPage = currentPage + 1;
+
+        //Continue after a timeout so the progress gets updated
+        setTimeout(searchLabelDiscogs, 500, labelName, nextPage);
+
+      } else {
+
+        //When all pages are loaded, the progress must be 20%
+        updateProgressBar(20);
+
+        if (labelNameDiscogs.match(/s$/) == 's') {
+          playlistName = labelNameDiscogs + "' Complete Discography";
+        } else {
+          playlistName = labelNameDiscogs + "'s Complete Discography";
+        }
+
+        $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
+        $("#discographyFetched").modal('show');
+      }
+
+    },
+    error: function(xhr, data) {
+
+      if (xhr.status == 404) {
+        $('#errorModalText').html("Unknown Record Label. Please try again.");
+        $("#errorModal").modal('show');
+      } else if (xhr.status == 0) {
+
+        $('#waiting').show();
+
+        //Wait a 'few' seconds, then try again
+        setTimeout(searchLabelDiscogs, 61000, labelName, page);
+      } else if (xhr.status == 401) {
+        $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
+        $("#errorModal").modal('show');
+
+      } else {
+        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
+        $("#errorModal").modal('show');
+      }
+    }
+  });
+
+}
 /************************************
 //                                  *
 //          Functionality           *
@@ -626,6 +689,35 @@ $(document).ready(() => {
   } else {
     window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
   }
+
+  //Search Start Button
+  $('.search-labels').click(function() {
+
+    //Prevent starting the export twice
+    if (exportIsActive === true) {
+      return;
+    } else {
+      exportIsActive = true;
+
+      //Reset some of the global values when the start-button is clicked
+      globalArtists = [];
+      playlistID = null;
+      multipleMatches = [];
+      withoutMatches = [];
+      addedCount = 0;
+      totalReleases = 0;
+      adedArtistCount = 0;
+
+      labelNameDiscogs = $('#GET-label-search').val().toLowerCase();
+
+      // $('#imageDiv').empty();
+      // $('#progressDiv').removeClass('hide');
+      // updateProgressBar(0);
+
+      //Start after a timeout so the Browser has time to display the changes
+      setTimeout(searchLabelDiscogs(labelNameDiscogs), 10, labelNameDiscogs, 1);
+    }
+  });
 
   // Start-Button
   $('.generate-playlist').click(function() {
