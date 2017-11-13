@@ -696,7 +696,7 @@ $(document).ready(() => {
 
   //Search Start Button
   $('.search-labels').click(function() {
-
+    console.log('search-labels was clicked');
     //Prevent starting the export twice
     if (exportIsActive === true) {
       return;
