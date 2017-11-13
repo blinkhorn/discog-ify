@@ -695,7 +695,7 @@ $(document).ready(() => {
   }
 
   //Search Start Button
-  $('.search-labels-input').click(function() {
+  $('.search-labels').click(function() {
 
     console.log('clicked');
     //Prevent starting the export twice
