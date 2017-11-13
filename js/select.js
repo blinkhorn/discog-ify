@@ -104,6 +104,7 @@ function addLabelReleases(discogsResult) {
     let releaseTitle = release.title;
     let releaseYear = release.year;
     let releaseArtist = release.artist;
+    console.log('release', release);
     // let releaseArtistName = releaseArtists[0].name;
 
     //Some artists on Discogs have a number in closing round
@@ -126,8 +127,6 @@ function encodeURIfix(str) {
 
 /** Creates a new playlist in the user's Spotify account, using the Discogs username */
 function createPlaylist() {
-
-  console.log('in createPlaylist');
 
   $.ajax({
     url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
