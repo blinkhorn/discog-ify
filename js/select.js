@@ -65,6 +65,16 @@ var theLabel = new Label(labelName, releases = []);
 //                                  *
 //***********************************/
 
+//converts first letter of each word to uppercase
+function toUpperCase(str) {
+return str
+    .split(' ')
+    .map((word) => {
+        return word[0].toUpperCase() + word.substr(1);
+    })
+    .join(' ');
+ }
+
 // Gets parameters from the URL
 function getURLParams() {
   let urlParams = {};
@@ -80,18 +90,6 @@ function getURLParams() {
 const params = getURLParams();
 spotify_token = params.access_token;
 
-// ************WILL IMPLEMENT AFTER MVP COMPLETE *********************
-//prevents duplicate artists from being in the global array. If the array contains
-//the artist's name, it returns the position in the array; otherwise it returns null
-// const containsName = function artistsContainsName(name) {
-//   for (var i = 0; i < globalArtists.length; i += 1) {
-//     if (globalArtists[i].name === name) {
-//       return i;
-//     }
-//   }
-//   return null;
-// };
-
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
@@ -105,8 +103,6 @@ function identifyLabelResults(discogsResult) {
 
     //Some artists on Discogs have a number in closing round
     //parenthesis behind their name — I prevent these here
-    // let splitName = releaseArtistName.split(/([(]\d+[)].*)/);
-    // let artistName = splitName[0];
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
       searchReleaseDiscogs(resultID, resultTitle);
@@ -129,8 +125,7 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
       theLabel.releases.push(theRelease);
       totalReleases += 1;
 
-      //When all pages are loaded, the progress must be 20%
-      updateProgressBar(20);
+      labelNameDiscogs = toUpperCase(labelNameDiscogs);
 
       if (labelNameDiscogs.match(/s$/) == 's') {
         playlistName = labelNameDiscogs + "' Complete Discography";
@@ -162,7 +157,6 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
       }
     }
   });
-
 }
 
 function encodeURIfix(str) {
