@@ -695,8 +695,8 @@ $(document).ready(() => {
   }
 
   //Search Start Button
-  $('.search-labels').click(function() {
-
+  $('.search-labels').click(function(e) {
+    e.preventDefault()
     console.log('clicked');
     //Prevent starting the export twice
     if (exportIsActive === true) {
