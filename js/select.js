@@ -98,6 +98,8 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function addLabelReleases(discogsResult) {
 
+  console.log('in addLabelReleases')
+
   $.each(discogsResult.releases, (pos, release) => {
     let releaseTitle = release.title;
     let releaseYear = release.year;
@@ -110,7 +112,7 @@ function addLabelReleases(discogsResult) {
     // let artistName = splitName[0];
 
     let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
-
+    console.log('Release:', theRelease);
     //push the release onto theLabel and increment totalReleases
     theLabel.releases.push(theRelease);
     totalReleases += 1;
@@ -124,6 +126,8 @@ function encodeURIfix(str) {
 
 /** Creates a new playlist in the user's Spotify account, using the Discogs username */
 function createPlaylist() {
+
+  console.log('in createPlaylist');
 
   $.ajax({
     url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
