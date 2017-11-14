@@ -117,7 +117,7 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
     url: 'https://api.discogs.com/releases/' + releaseID,
     type: "GET",
     success: function(result) {
-      let releaseArtist = result.artists.name;
+      let releaseArtist = result.artists[0].name;
       let releaseYear = result.year;
       let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
       console.log('Release:', theRelease);
@@ -178,7 +178,7 @@ function createPlaylist() {
     success: function(result) {
       playlistID = result.id;
 
-      updateProgressBar(20);
+      // updateProgressBar(20);
 
       exportToSpotify();
 
@@ -215,7 +215,7 @@ function exportToSpotify() {
     // adedArtistCount++;
 
     //Update Progress AND export next artist
-    updateProgress();
+    // updateProgress();
 
   } else {
 
