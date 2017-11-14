@@ -120,7 +120,6 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
       let releaseArtist = result.artists[0].name;
       let releaseYear = result.year;
       let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
-      console.log('Release:', theRelease);
       //push the release onto theLabel and increment totalReleases
       theLabel.releases.push(theRelease);
       totalReleases += 1;
@@ -197,7 +196,7 @@ function createPlaylist() {
 /** Gets the next artist from the global array and exports the artist's releases to Spotify */
 function exportToSpotify() {
 
-  console.log('IN exportToSpotify: label releases array', theLabel.releases);
+
 
   if (theLabel.releases.length > 0) {
 
@@ -207,7 +206,7 @@ function exportToSpotify() {
     // var releases = artist.releases;
 
     $.each(theLabel.releases, function(pos, release) {
-
+      console.log('In EACH release in exportToSpotify — RELEASE:', release);
       searchReleaseOnSpotify(release);
 
     });
@@ -325,6 +324,8 @@ function searchReleaseOnSpotify(release) {
 
   var query = 'album:"' + rTitle + '" artist:"' + release.artistName + '"';
 
+  console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
+
   $.ajax({
     url: 'https://api.spotify.com/v1/search',
     headers: {
@@ -338,6 +339,8 @@ function searchReleaseOnSpotify(release) {
     type: "GET",
     success: function(result) {
 
+      console.log('about to handleResultFromSpotify. RESULT:', result);
+      console.log('about to handleResultFromSpotify. RELEASE:', release);
       handleResultFromSpotify(result, release);
     },
     error: function(request, xhr, data) {
@@ -357,6 +360,7 @@ function handleResultFromSpotify(result, release) {
   //Possible matches
   var items = result.albums.items;
 
+  console.log('In handleResultFromSpotify: result.albums.items (or items)', items);
   //nothing found
   if (items.length === 0) {
     withoutMatches.push(release);
@@ -421,6 +425,9 @@ function handleResultFromSpotify(result, release) {
 /** Gets an album's tracks and has them saved to the playlist. Adds the cover to the site */
 function saveAlbumToPlaylist(albumID, imageURL) {
 
+
+  console.log('saveAlbumToPlaylist: albumID', albumID);
+
   return $.ajax({
     url: 'https://api.spotify.com/v1/albums/' + albumID + '/tracks',
     headers: {
@@ -450,6 +457,8 @@ function saveAlbumToPlaylist(albumID, imageURL) {
 
 /** Saves tracks to the playlist */
 function saveAlbumTracks(tracks) {
+
+  console.log('IN saveAlbumTracks: TRACKS', tracks);
 
   var spotifyURIs = [];
 
