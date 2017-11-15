@@ -327,15 +327,16 @@ function searchReleaseOnSpotify(release) {
   // console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
 
   $.ajax({
-    url: 'https://api.spotify.com/v1/search',
+    // url: 'https://api.spotify.com/v1/search',
+    url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
     headers: {
       'Authorization': 'Bearer ' + spotify_token
     },
-    data: {
-      q: query,
-      type: 'album',
-      market: usrCountry
-    },
+    // data: {
+    //   q: query,
+    //   type: 'album',
+    //   market: usrCountry
+    // },
     type: "GET",
     success: function(result, err) {
 
@@ -361,7 +362,7 @@ function handleResultFromSpotify(result, release) {
   //Possible matches
   var items = result.albums.items;
 
-  // console.log('In handleResultFromSpotify: result.albums.items (or items)', result);
+  console.log('In handleResultFromSpotify: result.albums.items (or items)', result);
   //nothing found
   if (items.length === 0) {
     withoutMatches.push(release);
