@@ -47,8 +47,8 @@ main {
   overflow: hidden;
 }*/
 
-.search-labels {
-  background: #1DB954;
+#search-labels {
+  background-color: #1DB954;
   margin-left: 0.6em;
 }
 

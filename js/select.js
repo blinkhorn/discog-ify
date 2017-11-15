@@ -691,7 +691,7 @@ function searchLabelDiscogs(labelName, page) {
 
 $(document).ready(() => {
 
-  $('.generate-playlist').hover(function() {
+  $('#search-labels').hover(function() {
     $(this).css('cursor', 'pointer');
   });
 
@@ -779,37 +779,37 @@ $(document).ready(() => {
   });
 
   // Start-Button
-  $('.generate-playlist').click(function() {
-
-    //Prevent starting the export twice
-    if (exportIsActive === true) {
-      return;
-    } else {
-      exportIsActive = true;
-
-      //Reset some of the global values when the start-button is clicked
-      globalArtists = [];
-      playlistID = null;
-      multipleMatches = [];
-      withoutMatches = [];
-      addedCount = 0;
-      totalReleases = 0;
-      adedArtistCount = 0;
-
-      labelNameDiscogs = $('#GET-label').val();
-
-      $('#imageDiv').empty();
-      // $('#progressDiv').removeClass('hide');
-      // updateProgressBar(0);
-
-      //Start after a timeout so the Browser has time to display the changes
-      setTimeout(getLabelDiscog, 10, labelNameDiscogs, 1);
-    }
-  });
-
-  $('.generate-playlist').hover(function() {
-    $(this).css('cursor', 'pointer');
-  });
+  // $('.generate-playlist').click(function() {
+  //
+  //   //Prevent starting the export twice
+  //   if (exportIsActive === true) {
+  //     return;
+  //   } else {
+  //     exportIsActive = true;
+  //
+  //     //Reset some of the global values when the start-button is clicked
+  //     globalArtists = [];
+  //     playlistID = null;
+  //     multipleMatches = [];
+  //     withoutMatches = [];
+  //     addedCount = 0;
+  //     totalReleases = 0;
+  //     adedArtistCount = 0;
+  //
+  //     labelNameDiscogs = $('#GET-label').val();
+  //
+  //     $('#imageDiv').empty();
+  //     // $('#progressDiv').removeClass('hide');
+  //     // updateProgressBar(0);
+  //
+  //     //Start after a timeout so the Browser has time to display the changes
+  //     setTimeout(getLabelDiscog, 10, labelNameDiscogs, 1);
+  //   }
+  // });
+  //
+  // $('.generate-playlist').hover(function() {
+  //   $(this).css('cursor', 'pointer');
+  // });
 
   // Make the user choose the right release
   $('#releasesAdded').on('hidden.bs.modal', function(e) {
