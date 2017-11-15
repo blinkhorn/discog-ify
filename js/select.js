@@ -318,6 +318,9 @@ function searchReleaseOnSpotify(release) {
 
   var rTitle = release.title;
 
+  console.log('rTitle is:', rTitle);
+  console.log('artistName is:', release.artistName);
+
   if (rTitle.endsWith("EP") || rTitle.endsWith("LP")) {
     rTitle = rTitle.slice(0, -2).trim();
   }
@@ -327,16 +330,16 @@ function searchReleaseOnSpotify(release) {
   // console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
 
   $.ajax({
-    // url: 'https://api.spotify.com/v1/search',
-    url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
+    url: 'https://api.spotify.com/v1/search',
+    // url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
     headers: {
       'Authorization': 'Bearer ' + spotify_token
     },
-    // data: {
-    //   q: query,
-    //   type: 'album',
-    //   market: usrCountry
-    // },
+    data: {
+      q: query,
+      type: 'album',
+      market: usrCountry
+    },
     type: "GET",
     success: function(result, err) {
 
