@@ -4,16 +4,17 @@
 Dicog-ify allows users to select a record label and generate a Spotify playlist of its available discography once logged in to your Spotify account. The application is in a testing stage at this time — I'm still adding features and functionality.
 
 ## Example
-To generate a playlist of Better Listen Records' discography, connect your Spotify account from the home page, and then select and submit Better Listen on the next page. Enjoy the playlist that will be automatically added to your Spotify playlists.
+To generate a playlist of Better Listen Records' discography, connect your Spotify account from the home page, and then search for and submit Better Listen Records on the next page. Enjoy the playlist that will be automatically added to your Spotify playlists.
 
-![Discog-ify home page](images/discog-ify.png 'Discog-ify Home Page')
-![Select a record label](images/select-label.png 'Select Record Label')
-![Creating playlist](images/playlist-create.png 'Creating Spotify Playlist')
-![Playlist Created in Spotify](images/better-listen-playlist.png 'Spotify Playlist Created')
+![Discog-ify home page](images/index.png 'Discog-ify Home Page')
+![Select a record label](images/select.png 'Select Record Label')
+![Creating playlist](images/result.png 'Creating Spotify Playlist')
+![Playlist Created in Spotify](images/playlist.png 'Spotify Playlist Created')
 
 ## Features
 
 * Allows user to sign in and connect their Spotify account
+* Lets user search for a record label they wish to create a playlist with
 * Generates a playlist for the user containing discography from Discogs' API in their Spotify account
 * More features to come!
 
