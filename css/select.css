@@ -40,22 +40,19 @@ main {
   display: flex;
   flex-direction: column;
 }
-
+/*
 .button-wrapper {
   display: inline-block;
   position: relative;
   overflow: hidden;
-}
+}*/
 
 .search-labels {
   background: #1DB954;
   margin-left: 0.6em;
 }
 
-
-
 .spotify-icon {
-  position: absolute;
   background: url(../images/spotify-icon.svg);
   width: 16px;
   height: 16px;
