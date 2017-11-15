@@ -41,17 +41,21 @@ main {
   flex-direction: column;
 }
 
-.search-labels, .search-labels-input {
+.button-wrapper {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-labels {
   background: #1DB954;
   margin-left: 0.6em;
 }
 
-.generate-playlist-input {
-  border-style: none;
-  margin-left: 0;
-}
+
 
 .spotify-icon {
+  position: absolute;
   background: url(../images/spotify-icon.svg);
   width: 16px;
   height: 16px;
