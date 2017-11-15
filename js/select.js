@@ -692,7 +692,9 @@ $(document).ready(() => {
   });
 
   const params = getURLParams();
-  spotify_token = params.access_token;
+  // spotify_token = params.access_token;
+  spotify_token = config.SPOTIFY_SECRET_KEY;
+
   //Set exportIsActive to false on page load in the event that the previous
   //export did not complete
   exportIsActive = false;
