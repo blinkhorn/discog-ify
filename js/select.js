@@ -316,7 +316,7 @@ function showNoMatch() {
 /** Start a search on Spotify and handle the result */
 function searchReleaseOnSpotify(release) {
 
-  var rTitle = release.title;
+  var rTitle = release.title.replace(`${release.artistName} - `,'');
 
   console.log('rTitle is:', rTitle);
   console.log('artistName is:', release.artistName);
