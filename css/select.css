@@ -41,7 +41,7 @@ main {
   flex-direction: column;
 }
 
-.generate-playlist, .generate-playlist-input {
+.search-labels, .search-labels-input {
   background: #1DB954;
   margin-left: 0.6em;
 }
