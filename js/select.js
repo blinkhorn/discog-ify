@@ -736,11 +736,12 @@ $(document).ready(() => {
 
       },
       error: (xhr, data) => {
-        window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+        // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+        console.error(data);
       }
     });
   } else {
-    window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+    // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
   }
 
   //Search Start Button
