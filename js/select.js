@@ -324,7 +324,7 @@ function searchReleaseOnSpotify(release) {
 
   var query = 'album:"' + rTitle + '" artist:"' + release.artistName + '"';
 
-  console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
+  // console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
 
   $.ajax({
     url: 'https://api.spotify.com/v1/search',
@@ -337,10 +337,11 @@ function searchReleaseOnSpotify(release) {
       market: usrCountry
     },
     type: "GET",
-    success: function(result) {
+    success: function(result, err) {
 
+      console.log('about to handleResultFromSpotify. ERROR:', err);
       console.log('about to handleResultFromSpotify. RESULT:', result);
-      console.log('about to handleResultFromSpotify. RELEASE:', release);
+      // console.log('about to handleResultFromSpotify. RELEASE:', release);
       handleResultFromSpotify(result, release);
     },
     error: function(request, xhr, data) {
@@ -360,7 +361,7 @@ function handleResultFromSpotify(result, release) {
   //Possible matches
   var items = result.albums.items;
 
-  console.log('In handleResultFromSpotify: result.albums.items (or items)', items);
+  // console.log('In handleResultFromSpotify: result.albums.items (or items)', result);
   //nothing found
   if (items.length === 0) {
     withoutMatches.push(release);
