@@ -105,7 +105,7 @@ function identifyLabelResults(discogsResult) {
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      searchReleaseDiscogs(resultID, resultTitle);
+      setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
     }
   });
 };
@@ -751,7 +751,7 @@ $(document).ready(() => {
   //Search Start Button
   $('#search-labels').click(function(e) {
     e.preventDefault()
-    console.log('clicked');
+    // console.log('clicked');
     //Prevent starting the export twice
     if (exportIsActive === true) {
       return;
