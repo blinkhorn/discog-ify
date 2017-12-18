@@ -557,68 +557,68 @@ function updateProgressBar(percent) {
 // }
 
 /** Entry point. Fetches the user's discography from Discogs */
-function getLabelDiscog(labelName = 1089886, page) {
-
-  $.ajax({
-    url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
-    type: "GET",
-    success: function(result) {
-
-      addLabelReleases(result, 1089886);
-
-      var currentPage = result.pagination.page;
-      var pages = result.pagination.pages;
-
-      //next page
-      if (currentPage < pages) {
-
-        var currentProgress = (currentPage / pages) * 20;
-        updateProgressBar(currentProgress);
-
-        var nextPage = currentPage + 1;
-
-        //Continue after a timeout so the progress gets updated
-        setTimeout(getLabelDiscog, 500, labelName, nextPage);
-
-      } else {
-
-        //When all pages are loaded, the progress must be 20%
-        updateProgressBar(20);
-
-        if (labelNameDiscogs.match(/s$/) == 's') {
-          playlistName = labelNameDiscogs + "' Complete Discography";
-        } else {
-          playlistName = labelNameDiscogs + "'s Complete Discography";
-        }
-
-        $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-        $("#discographyFetched").modal('show');
-      }
-
-    },
-    error: function(xhr, data) {
-
-      if (xhr.status == 404) {
-        $('#errorModalText').html("Unknown Record Label. Please try again.");
-        $("#errorModal").modal('show');
-      } else if (xhr.status == 0) {
-
-        $('#waiting').show();
-
-        //Wait a 'few' seconds, then try again
-        setTimeout(getLabelDiscog, 61000, labelName, page);
-      } else if (xhr.status == 401) {
-        $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
-        $("#errorModal").modal('show');
-
-      } else {
-        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
-        $("#errorModal").modal('show');
-      }
-    }
-  });
-
-}
+// function getLabelDiscog(labelName = 1089886, page) {
+//
+//   $.ajax({
+//     url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
+//     type: "GET",
+//     success: function(result) {
+//
+//       addLabelReleases(result, 1089886);
+//
+//       var currentPage = result.pagination.page;
+//       var pages = result.pagination.pages;
+//
+//       //next page
+//       if (currentPage < pages) {
+//
+//         var currentProgress = (currentPage / pages) * 20;
+//         updateProgressBar(currentProgress);
+//
+//         var nextPage = currentPage + 1;
+//
+//         //Continue after a timeout so the progress gets updated
+//         setTimeout(getLabelDiscog, 500, labelName, nextPage);
+//
+//       } else {
+//
+//         //When all pages are loaded, the progress must be 20%
+//         updateProgressBar(20);
+//
+//         if (labelNameDiscogs.match(/s$/) == 's') {
+//           playlistName = labelNameDiscogs + "' Complete Discography";
+//         } else {
+//           playlistName = labelNameDiscogs + "'s Complete Discography";
+//         }
+//
+//         $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
+//         $("#discographyFetched").modal('show');
+//       }
+//
+//     },
+//     error: function(xhr, data) {
+//
+//       if (xhr.status == 404) {
+//         $('#errorModalText').html("Unknown Record Label. Please try again.");
+//         $("#errorModal").modal('show');
+//       } else if (xhr.status == 0) {
+//
+//         $('#waiting').show();
+//
+//         //Wait a 'few' seconds, then try again
+//         setTimeout(getLabelDiscog, 61000, labelName, page);
+//       } else if (xhr.status == 401) {
+//         $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
+//         $("#errorModal").modal('show');
+//
+//       } else {
+//         $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
+//         $("#errorModal").modal('show');
+//       }
+//     }
+//   });
+//
+// }
 
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchLabelDiscogs(labelName, page) {
