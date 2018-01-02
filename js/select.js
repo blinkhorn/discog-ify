@@ -105,7 +105,7 @@ function identifyLabelResults(discogsResult) {
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      window.setTimeout(searchReleaseDiscogs, 10000, resultID, resultTitle);
+      window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
     }
   });
 };
@@ -774,7 +774,7 @@ $(document).ready(() => {
       // updateProgressBar(0);
 
       //Start after a timeout so the Browser has time to display the changes
-      window.setTimeout(searchLabelDiscogs, 10000, labelNameDiscogs, 1);
+      window.setTimeout(searchLabelDiscogs, 1000, labelNameDiscogs, 1);
     }
   });
 
