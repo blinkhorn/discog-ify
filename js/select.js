@@ -112,7 +112,7 @@ function identifyLabelResults(discogsResult) {
 
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(releaseID, releaseTitle) {
-
+  console.time('searchRelease');
   $.ajax({
     url: 'https://api.discogs.com/releases/' + releaseID,
     type: "GET",
@@ -156,6 +156,7 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
       }
     }
   });
+  console.timeEnd('searchRelease');
 }
 
 function encodeURIfix(str) {
