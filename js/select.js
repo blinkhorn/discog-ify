@@ -105,7 +105,7 @@ function identifyLabelResults(discogsResult) {
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
+      window.setTimeout(searchReleaseDiscogs, 1000  , resultID, resultTitle);
     }
   });
 };
@@ -635,6 +635,8 @@ function searchLabelDiscogs(labelName, page) {
 
       //next page
       if (currentPage < pages) {
+        console.log('length', pages.length);
+        console.log('pages', pages);
 
         var currentProgress = (currentPage / pages) * 20;
         updateProgressBar(currentProgress);
