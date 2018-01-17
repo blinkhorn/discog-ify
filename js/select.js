@@ -65,6 +65,28 @@ var theLabel = new Label(labelName, releases = []);
 //                                  *
 //***********************************/
 
+//throttles functions, particularly for searchLabelDiscogs()
+function throttle(fn, threshhold, scope) {
+  let last;
+  let deferTimer;
+  return () => {
+    let context = scope || this;
+    let now = +new Date; //convert to number
+    let args = arguments;
+    if (last && now < last + threshhold) {
+      //hold it now
+      clearTimeout(deferTimer);
+      deferTimer = setTimeout( () => {
+        last = now;
+        fn.apply(context, args);
+      }, threshhold);
+    } else {
+      last = now;
+      fn.apply(context, args);
+    }
+  };
+}
+
 //converts first letter of each word to uppercase
 function toUpperCase(str) {
 return str
@@ -105,10 +127,11 @@ function identifyLabelResults(discogsResult) {
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      window.setTimeout(searchReleaseDiscogs, 1000  , resultID, resultTitle);
+      // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
+      throttle(searchReleaseDiscogs(resultID, resultTitle), 1000);
     }
   });
-};
+}
 
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(releaseID, releaseTitle) {
