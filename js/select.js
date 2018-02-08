@@ -132,7 +132,7 @@ function identifyLabelResults(discogsResult) {
     }
   });
 }
-//unnecessary commment for test
+//unnecessary commment for test  blah
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(releaseID, releaseTitle) {
   console.time('searchRelease');
