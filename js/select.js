@@ -66,39 +66,39 @@ var theLabel = new Label(labelName, releases = []);
 //***********************************/
 
 //throttles functions, particularly for searchLabelDiscogs()
-// function throttle(fn, threshhold, scope) {
-//   let last;
-//   let deferTimer;
-//   return () => {
-//     let context = scope || this;
-//     let now = +new Date; //convert to number
-//     let args = arguments;
-//     if (last && now < last + threshhold) {
-//       //hold it now
-//       clearTimeout(deferTimer);
-//       deferTimer = setTimeout( () => {
-//         last = now;
-//         fn.apply(context, args);
-//       }, threshhold);
-//     } else {
-//       last = now;
-//       fn.apply(context, args);
-//     }
-//   };
-// }
-
-function debounce(func, wait, immediate) {
-	var timeout;
-	return function() {
-		var context = this, args = arguments;
-		clearTimeout(timeout);
-		timeout = setTimeout(function() {
-			timeout = null;
-			if (!immediate) func.apply(context, args);
-		}, wait);
-		if (immediate && !timeout) func.apply(context, args);
-	};
+function throttle(fn, threshhold, scope) {
+  let last;
+  let deferTimer;
+  return () => {
+    let context = scope || this;
+    let now = +new Date; //convert to number
+    let args = arguments;
+    if (last && now < last + threshhold) {
+      //hold it now
+      clearTimeout(deferTimer);
+      deferTimer = setTimeout( () => {
+        last = now;
+        fn.apply(context, args);
+      }, threshhold);
+    } else {
+      last = now;
+      fn.apply(context, args);
+    }
+  };
 }
+
+// function debounce(func, wait, immediate) {
+// 	var timeout;
+// 	return function() {
+// 		var context = this, args = arguments;
+// 		clearTimeout(timeout);
+// 		timeout = setTimeout(function() {
+// 			timeout = null;
+// 			if (!immediate) func.apply(context, args);
+// 		}, wait);
+// 		if (immediate && !timeout) func.apply(context, args);
+// 	};
+// }
 
 //converts first letter of each word to uppercase
 function toUpperCase(str) {
@@ -141,58 +141,104 @@ function identifyLabelResults(discogsResult) {
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
       // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
-      debounce(searchReleaseDiscogs(resultID, resultTitle), 1000);
+      setTimeout(function(resultID, resultTitle) {
+        console.time('searchRelease');
+        $.ajax({
+          url: 'https://api.discogs.com/releases/' + releaseID,
+          type: "GET",
+          success: function(result) {
+            let releaseArtist = result.artists[0].name;
+            let releaseYear = result.year;
+            let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+            //push the release onto theLabel and increment totalReleases
+            theLabel.releases.push(theRelease);
+            totalReleases += 1;
+
+            labelNameDiscogs = toUpperCase(labelNameDiscogs);
+
+            if (labelNameDiscogs.match(/s$/) == 's') {
+              playlistName = labelNameDiscogs + "' Complete Discography";
+            } else {
+              playlistName = labelNameDiscogs + "'s Complete Discography";
+            }
+
+            $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
+            $("#discographyFetched").modal('show');
+          },
+          error: function(xhr, data) {
+
+            if (xhr.status == 404) {
+              $('#errorModalText').html("Unknown Record Label. Please try again.");
+              $("#errorModal").modal('show');
+            } else if (xhr.status == 0) {
+
+              $('#waiting').show();
+
+              //Wait a 'few' seconds, then try again
+              setTimeout(searchLabelDiscogs, 61000, labelName, page);
+            } else if (xhr.status == 401) {
+              $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
+              $("#errorModal").modal('show');
+
+            } else {
+              $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
+              $("#errorModal").modal('show');
+            }
+          }
+        });
+        console.timeEnd('searchRelease');
+      }, 1000);
     }
   });
 }
 /** Entry point for search function. Fetches the label entered from Discogs */
-function searchReleaseDiscogs(releaseID, releaseTitle) {
-  console.time('searchRelease');
-  $.ajax({
-    url: 'https://api.discogs.com/releases/' + releaseID,
-    type: "GET",
-    success: function(result) {
-      let releaseArtist = result.artists[0].name;
-      let releaseYear = result.year;
-      let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
-      //push the release onto theLabel and increment totalReleases
-      theLabel.releases.push(theRelease);
-      totalReleases += 1;
+// function searchReleaseDiscogs(releaseID, releaseTitle) {
+//   console.time('searchRelease');
+//   $.ajax({
+//     url: 'https://api.discogs.com/releases/' + releaseID,
+//     type: "GET",
+//     success: function(result) {
+//       let releaseArtist = result.artists[0].name;
+//       let releaseYear = result.year;
+//       let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+//       //push the release onto theLabel and increment totalReleases
+//       theLabel.releases.push(theRelease);
+//       totalReleases += 1;
 
-      labelNameDiscogs = toUpperCase(labelNameDiscogs);
+//       labelNameDiscogs = toUpperCase(labelNameDiscogs);
 
-      if (labelNameDiscogs.match(/s$/) == 's') {
-        playlistName = labelNameDiscogs + "' Complete Discography";
-      } else {
-        playlistName = labelNameDiscogs + "'s Complete Discography";
-      }
+//       if (labelNameDiscogs.match(/s$/) == 's') {
+//         playlistName = labelNameDiscogs + "' Complete Discography";
+//       } else {
+//         playlistName = labelNameDiscogs + "'s Complete Discography";
+//       }
 
-      $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-      $("#discographyFetched").modal('show');
-    },
-    error: function(xhr, data) {
+//       $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
+//       $("#discographyFetched").modal('show');
+//     },
+//     error: function(xhr, data) {
 
-      if (xhr.status == 404) {
-        $('#errorModalText').html("Unknown Record Label. Please try again.");
-        $("#errorModal").modal('show');
-      } else if (xhr.status == 0) {
+//       if (xhr.status == 404) {
+//         $('#errorModalText').html("Unknown Record Label. Please try again.");
+//         $("#errorModal").modal('show');
+//       } else if (xhr.status == 0) {
 
-        $('#waiting').show();
+//         $('#waiting').show();
 
-        //Wait a 'few' seconds, then try again
-        setTimeout(searchLabelDiscogs, 61000, labelName, page);
-      } else if (xhr.status == 401) {
-        $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
-        $("#errorModal").modal('show');
+//         //Wait a 'few' seconds, then try again
+//         setTimeout(searchLabelDiscogs, 61000, labelName, page);
+//       } else if (xhr.status == 401) {
+//         $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
+//         $("#errorModal").modal('show');
 
-      } else {
-        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
-        $("#errorModal").modal('show');
-      }
-    }
-  });
-  console.timeEnd('searchRelease');
-}
+//       } else {
+//         $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
+//         $("#errorModal").modal('show');
+//       }
+//     }
+//   });
+//   console.timeEnd('searchRelease');
+// }
 
 function encodeURIfix(str) {
   return encodeURIComponent(str).replace(/!/g, '%21');
