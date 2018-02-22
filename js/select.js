@@ -144,12 +144,12 @@ function identifyLabelResults(discogsResult) {
       setTimeout(function(resultID, resultTitle) {
         console.time('searchRelease');
         $.ajax({
-          url: 'https://api.discogs.com/releases/' + releaseID,
+          url: 'https://api.discogs.com/releases/' + resultID,
           type: "GET",
           success: function(result) {
             let releaseArtist = result.artists[0].name;
             let releaseYear = result.year;
-            let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+            let theRelease = new Release(resultTitle, releaseArtist, releaseYear);
             //push the release onto theLabel and increment totalReleases
             theLabel.releases.push(theRelease);
             totalReleases += 1;
