@@ -87,21 +87,17 @@ var theLabel = new Label(labelName, releases = []);
 //   };
 // }
 
-function throttle(callback, wait, context = this) {
-  let timeout = null 
-  let callbackArgs = null
-  
-  const later = () => {
-    callback.apply(context, callbackArgs)
-    timeout = null
-  }
-  
-  return function() {
-    if (!timeout) {
-      callbackArgs = arguments
-      timeout = setTimeout(later, wait)
-    }
-  }
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		clearTimeout(timeout);
+		timeout = setTimeout(function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		}, wait);
+		if (immediate && !timeout) func.apply(context, args);
+	};
 }
 
 //converts first letter of each word to uppercase
@@ -145,7 +141,7 @@ function identifyLabelResults(discogsResult) {
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
       // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
-      throttle(searchReleaseDiscogs(resultID, resultTitle), 1000);
+      debounce(searchReleaseDiscogs(resultID, resultTitle), 1000);
     }
   });
 }
