@@ -66,25 +66,42 @@ var theLabel = new Label(labelName, releases = []);
 //***********************************/
 
 //throttles functions, particularly for searchLabelDiscogs()
-function throttle(fn, threshhold, scope) {
-  let last;
-  let deferTimer;
-  return () => {
-    let context = scope || this;
-    let now = +new Date; //convert to number
-    let args = arguments;
-    if (last && now < last + threshhold) {
-      //hold it now
-      clearTimeout(deferTimer);
-      deferTimer = setTimeout( () => {
-        last = now;
-        fn.apply(context, args);
-      }, threshhold);
-    } else {
-      last = now;
-      fn.apply(context, args);
+// function throttle(fn, threshhold, scope) {
+//   let last;
+//   let deferTimer;
+//   return () => {
+//     let context = scope || this;
+//     let now = +new Date; //convert to number
+//     let args = arguments;
+//     if (last && now < last + threshhold) {
+//       //hold it now
+//       clearTimeout(deferTimer);
+//       deferTimer = setTimeout( () => {
+//         last = now;
+//         fn.apply(context, args);
+//       }, threshhold);
+//     } else {
+//       last = now;
+//       fn.apply(context, args);
+//     }
+//   };
+// }
+
+function throttle(callback, wait, context = this) {
+  let timeout = null 
+  let callbackArgs = null
+  
+  const later = () => {
+    callback.apply(context, callbackArgs)
+    timeout = null
+  }
+  
+  return function() {
+    if (!timeout) {
+      callbackArgs = arguments
+      timeout = setTimeout(later, wait)
     }
-  };
+  }
 }
 
 //converts first letter of each word to uppercase
@@ -132,8 +149,6 @@ function identifyLabelResults(discogsResult) {
     }
   });
 }
-//unnecessary commment for test  blah
-//blah
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(releaseID, releaseTitle) {
   console.time('searchRelease');
