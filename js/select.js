@@ -141,7 +141,7 @@ function identifyLabelResults(discogsResult) {
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
       // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
-      throttle(searchReleaseDiscogs(resultID, resultTitle), 1000);
+      setTimeout(searchReleaseDiscogs(resultID, resultTitle), 1000);
     }
   });
 }
