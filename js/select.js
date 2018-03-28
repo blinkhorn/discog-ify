@@ -128,15 +128,17 @@ spotify_token = params.access_token;
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
-
+  console.log('in identifyLabelResults');
   let elements = $.each(discogsResult.results, (pos, results) => {
+    console.log('in $.each');
     let resultType = results.type;
     let resultID = results.id;
     let resultTitle = results.title;
   });
   let index = 0;
-
+  console.log('elements are:' + elements);
   setTimeout(function() {
+    console.log('in setTimeout');
     let element = $(elements).get(index);
     // let releaseArtistName = releaseArtists[0].name;
 
