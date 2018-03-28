@@ -182,7 +182,9 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
         $('#waiting').show();
 
         //Wait a 'few' seconds, then try again
-        setTimeout(searchLabelDiscogs, 61000, labelName, page);
+        setTimeout(function() {
+          searchLabelDiscogs(labelName);
+        }, 61000);
       } else if (xhr.status == 401) {
         $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
         $("#errorModal").modal('show');
