@@ -814,7 +814,9 @@ $(document).ready(() => {
       // updateProgressBar(0);
 
       //Start after a timeout so the Browser has time to display the changes
-      window.setTimeout(searchLabelDiscogs, 1000, labelNameDiscogs, 1);
+      setTimeout(function() {
+        searchLabelDiscogs(labelNameDiscogs);
+      }, 1000);
     }
   });
 
