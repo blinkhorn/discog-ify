@@ -129,23 +129,24 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
 
-  $.each(discogsResult.results, (pos, results) => {
+  let elements = $.each(discogsResult.results, (pos, results) => {
     let resultType = results.type;
     let resultID = results.id;
     let resultTitle = results.title;
+  });
+  let index = 0;
 
+  setTimeout(function() {
+    let element = $(elements).get(index);
     // let releaseArtistName = releaseArtists[0].name;
 
     //Some artists on Discogs have a number in closing round
     //parenthesis behind their name — I prevent these here
-    if (resultType === 'release') {
-      //searches for the result on discogs using its ID if it's a release
-      // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
-      setTimeout(function() {
+    if (element.resultType === 'release') {
         searchReleaseDiscogs(resultID, resultTitle);
-      }, 1000);
     }
-  });
+    index++;
+  }, 1000);
 }
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(releaseID, releaseTitle) {
