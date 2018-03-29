@@ -140,7 +140,7 @@ function identifyLabelResults(discogsResult) {
   console.log('elements are:' + elements);
   setTimeout(function() {
     console.log('in setTimeout');
-    let element = $(elements).get(index);
+    var element = $(elements).get(index);
     // let releaseArtistName = releaseArtists[0].name;
 
     //Some artists on Discogs have a number in closing round
