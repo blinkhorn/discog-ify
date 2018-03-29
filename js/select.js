@@ -129,11 +129,12 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
   console.log('in identifyLabelResults');
-  let elements = $.each(discogsResult.results, (pos, results) => {
+  var elements = $.each(discogsResult.results, (pos, results) => {
     console.log('in $.each');
     let resultType = results.type;
     let resultID = results.id;
     let resultTitle = results.title;
+    console.log('resultTitle is: ' + resultTitle);
   });
   let index = 0;
   console.log('elements are:' + elements);
