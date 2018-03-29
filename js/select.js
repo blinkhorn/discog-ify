@@ -140,9 +140,10 @@ function identifyLabelResults(discogsResult) {
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      // window.setTimeout(searchReleaseDiscogs, 1000, resultID, resultTitle);
+      var $current = $(this);
       setTimeout(function() {
-        searchReleaseDiscogs(resultID, resultTitle);
+        console.log('title: ' + $current.title);
+        searchReleaseDiscogs($current.id, $current.title);
       }, 1000);
     }
   });
