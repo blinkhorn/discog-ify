@@ -64,28 +64,34 @@ var theLabel = new Label(labelName, releases = []);
 //      Function Expressions        *
 //                                  *
 //***********************************/
-
-//throttles functions, particularly for searchLabelDiscogs()
-function throttle(fn, threshhold, scope) {
-  let last;
-  let deferTimer;
-  return () => {
-    let context = scope || this;
-    let now = +new Date; //convert to number
-    let args = arguments;
-    if (last && now < last + threshhold) {
-      //hold it now
-      clearTimeout(deferTimer);
-      deferTimer = setTimeout( () => {
-        last = now;
-        fn.apply(context, args);
-      }, threshhold);
+//underscore.js ratelimit function
+_.rateLimit = function(func, rate, async) {
+  var queue = [];
+  var timeOutRef = false;
+  var currentlyEmptyingQueue = false;
+  
+  var emptyQueue = function() {
+    if (queue.length) {
+      currentlyEmptyingQueue = true;
+      _.delay(function() {
+        if (async) {
+          _.defer(function() { queue.shift().call(); });
+        } else {
+          queue.shift().call();
+        }
+        emptyQueue();
+      }, rate);
     } else {
-      last = now;
-      fn.apply(context, args);
+      currentlyEmptyingQueue = false;
     }
   };
-}
+  
+  return function() {
+    var args = _.map(arguments, function(e) { return e; }); // get arguments into an array
+    queue.push( _.bind.apply(this, [func, this].concat(args)) ); // call apply so that we can pass in arguments as parameters as opposed to an array
+    if (!currentlyEmptyingQueue) { emptyQueue(); }
+  };
+};
 
 // function debounce(func, wait, immediate) {
 // 	var timeout;
@@ -128,7 +134,7 @@ spotify_token = params.access_token;
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
-
+  var searchReleaseDiscogsLimited = _.rateLimit(searchReleaseDiscogs, 1000);
   $.each(discogsResult.results, (pos, results) => {
     let resultType = results.type;
     let resultID = results.id;
@@ -141,10 +147,8 @@ function identifyLabelResults(discogsResult) {
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
       // var $current = $(this);
-      setTimeout(function() {
-        // console.log('title: ' + $current.title);
-        searchReleaseDiscogs(resultID, resultTitle);
-      }, 1000);
+      
+      searchReleaseDiscogsLimited(resultID, resultTitle);
     }
   });
 }
