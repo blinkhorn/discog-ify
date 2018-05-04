@@ -37,14 +37,6 @@ class Release {
   }
 }
 
-// ************WILL IMPLEMENT AFTER MVP COMPLETE *********************
-// class Artist {
-//   constructor(name, releases) {
-//     this.name = name;
-//     this.releases = releases;
-//   }
-// }
-
 class Label {
   constructor(name, releases) {
     this.name = name;
@@ -560,111 +552,6 @@ function updateProgressBar(percent) {
   $('#progressNumber').html(percent + '%');
 }
 
-/** Takes the result from Discogs and adds each artist and their releases to the global array (No duplicates!) */
-// function addArtistsAndReleases(result) {
-//
-//   $.each(result.releases, function(pos, release) {
-//
-//     var releaseTitle = release.basic_information.title;
-//     var releaseYear = release.basic_information.year;
-//     var releaseArtists = release.basic_information.artists;
-//     var releaseArtistName = releaseArtists[0].name;
-//
-//     Some artists on Discogs have a number in closing round parenthesis behing their name. We don't want these.
-//     var splitName = releaseArtistName.split(/([(]\d+[)].*)/);
-//     var artistName = splitName[0];
-//
-//     var thisRelease = new releaseObject(releaseTitle, artistName, releaseYear);
-//
-//     var positionInGlobalArray = artistsContainsName(releaseArtistName);
-//
-//     if (positionInGlobalArray != -1) {
-//
-//       Get the artist from the global array
-//       var thisArtist = globalArtists[positionInGlobalArray];
-//
-//       Add this release to the artist's releases, if it's not in the array already
-//       if (!releasesContainsTitle(thisArtist.releases, thisRelease.title)) {
-//         thisArtist.releases.push(thisRelease);
-//         totalReleases++;
-//       }
-//
-//     } else {
-//
-//       Create new artist with new release-array and add artist to the global array
-//       globalArtists.push(new artist(releaseArtistName, new Array(thisRelease)));
-//       totalReleases++;
-//       totalArtists++;
-//
-//     }
-//
-//   });
-// }
-
-/** Entry point. Fetches the user's discography from Discogs */
-// function getLabelDiscog(labelName = 1089886, page) {
-//
-//   $.ajax({
-//     url: 'https://api.discogs.com/labels/' + 1089886 + '/releases?page=' + page + '&per_page=100',
-//     type: "GET",
-//     success: function(result) {
-//
-//       addLabelReleases(result, 1089886);
-//
-//       var currentPage = result.pagination.page;
-//       var pages = result.pagination.pages;
-//
-//       //next page
-//       if (currentPage < pages) {
-//
-//         var currentProgress = (currentPage / pages) * 20;
-//         updateProgressBar(currentProgress);
-//
-//         var nextPage = currentPage + 1;
-//
-//         //Continue after a timeout so the progress gets updated
-//         setTimeout(getLabelDiscog, 500, labelName, nextPage);
-//
-//       } else {
-//
-//         //When all pages are loaded, the progress must be 20%
-//         updateProgressBar(20);
-//
-//         if (labelNameDiscogs.match(/s$/) == 's') {
-//           playlistName = labelNameDiscogs + "' Complete Discography";
-//         } else {
-//           playlistName = labelNameDiscogs + "'s Complete Discography";
-//         }
-//
-//         $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-//         $("#discographyFetched").modal('show');
-//       }
-//
-//     },
-//     error: function(xhr, data) {
-//
-//       if (xhr.status == 404) {
-//         $('#errorModalText').html("Unknown Record Label. Please try again.");
-//         $("#errorModal").modal('show');
-//       } else if (xhr.status == 0) {
-//
-//         $('#waiting').show();
-//
-//         //Wait a 'few' seconds, then try again
-//         setTimeout(getLabelDiscog, 61000, labelName, page);
-//       } else if (xhr.status == 401) {
-//         $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
-//         $("#errorModal").modal('show');
-//
-//       } else {
-//         $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
-//         $("#errorModal").modal('show');
-//       }
-//     }
-//   });
-//
-// }
-
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchLabelDiscogs(labelName, page) {
 
@@ -750,7 +637,6 @@ $(document).ready(() => {
   //export did not complete
   exportIsActive = false;
 
-  ///////////REWORK /////
   // Check the login state; set usrID, usrCountry, and usrNameSpotify
   if (spotify_token) {
     $.ajax({
@@ -777,7 +663,7 @@ $(document).ready(() => {
           usrImage = '<img src=""' + usrImageURL + '>'
         }
 
-        ////BRING BACK vvvvv
+        ////BRING BACK 
 
         // if (usrNameSpotify === null) {
         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
@@ -826,39 +712,6 @@ $(document).ready(() => {
       }, 1000);
     }
   });
-
-  // Start-Button
-  // $('.generate-playlist').click(function() {
-  //
-  //   //Prevent starting the export twice
-  //   if (exportIsActive === true) {
-  //     return;
-  //   } else {
-  //     exportIsActive = true;
-  //
-  //     //Reset some of the global values when the start-button is clicked
-  //     globalArtists = [];
-  //     playlistID = null;
-  //     multipleMatches = [];
-  //     withoutMatches = [];
-  //     addedCount = 0;
-  //     totalReleases = 0;
-  //     adedArtistCount = 0;
-  //
-  //     labelNameDiscogs = $('#GET-label').val();
-  //
-  //     $('#imageDiv').empty();
-  //     // $('#progressDiv').removeClass('hide');
-  //     // updateProgressBar(0);
-  //
-  //     //Start after a timeout so the Browser has time to display the changes
-  //     setTimeout(getLabelDiscog, 10, labelNameDiscogs, 1);
-  //   }
-  // });
-  //
-  // $('.generate-playlist').hover(function() {
-  //   $(this).css('cursor', 'pointer');
-  // });
 
   // Make the user choose the right release
   $('#releasesAdded').on('hidden.bs.modal', function(e) {
