@@ -49,7 +49,7 @@ class Label {
 //      Global Class instance       *
 //                                  *
 //***********************************/
-var theLabel = new Label(labelName, releases = []);
+var theLabel = new Label(labelName, (releases = []));
 
 /************************************
 //                                  *
@@ -61,13 +61,15 @@ _.rateLimit = function(func, rate, async) {
   var queue = [];
   var timeOutRef = false;
   var currentlyEmptyingQueue = false;
-  
+
   var emptyQueue = function() {
     if (queue.length) {
       currentlyEmptyingQueue = true;
       _.delay(function() {
         if (async) {
-          _.defer(function() { queue.shift().call(); });
+          _.defer(function() {
+            queue.shift().call();
+          });
         } else {
           queue.shift().call();
         }
@@ -77,13 +79,32 @@ _.rateLimit = function(func, rate, async) {
       currentlyEmptyingQueue = false;
     }
   };
-  
+
   return function() {
-    var args = _.map(arguments, function(e) { return e; }); // get arguments into an array
-    queue.push( _.bind.apply(this, [func, this].concat(args)) ); // call apply so that we can pass in arguments as parameters as opposed to an array
-    if (!currentlyEmptyingQueue) { emptyQueue(); }
+    var args = _.map(arguments, function(e) {
+      return e;
+    }); // get arguments into an array
+    queue.push(_.bind.apply(this, [func, this].concat(args))); // call apply so that we can pass in arguments as parameters as opposed to an array
+    if (!currentlyEmptyingQueue) {
+      emptyQueue();
+    }
   };
 };
+
+function requestAllWithDelay(urls, delay) {
+  return urls.reduce((promise, url) => {
+    return promise.then(responses => {
+      return fetch(url)
+        .then(res => res.json())
+        .then(response => {
+          return new Promise(resolve => {
+            setTimeout(resolve, delay, responses.concat(response));
+            console.log('response', response)
+          });
+        });
+    });
+  }, Promise.resolve([]));
+}
 
 // function debounce(func, wait, immediate) {
 // 	var timeout;
@@ -100,13 +121,13 @@ _.rateLimit = function(func, rate, async) {
 
 //converts first letter of each word to uppercase
 function toUpperCase(str) {
-return str
+  return str
     .split(' ')
-    .map((word) => {
-        return word[0].toUpperCase() + word.substr(1);
+    .map(word => {
+      return word[0].toUpperCase() + word.substr(1);
     })
     .join(' ');
- }
+}
 
 // Gets parameters from the URL
 function getURLParams() {
@@ -114,11 +135,12 @@ function getURLParams() {
   let result;
   let regex = /([^&;=]+)=?([^&;]*)/g; //isolate sections of params separated by '='
   let totalParams = window.location.hash.substring(1); //get rid of hash from params
-  while (result = regex.exec(totalParams)) { //while exec finds regex in totalParams
+  while ((result = regex.exec(totalParams))) {
+    //while exec finds regex in totalParams
     urlParams[result[1]] = decodeURIComponent(result[2]);
   }
   return urlParams;
-};
+}
 
 const params = getURLParams();
 spotify_token = params.access_token;
@@ -127,36 +149,39 @@ spotify_token = params.access_token;
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
   var searchReleaseDiscogsLimited = _.rateLimit(searchReleaseDiscogs, 3000);
+  const requestUrls = [];
+  const releaseTitles = [];
   $.each(discogsResult.results, (pos, results) => {
     let resultType = results.type;
     let resultID = results.id;
     let resultTitle = results.title;
-  
+
     // let releaseArtistName = releaseArtists[0].name;
 
     //Some artists on Discogs have a number in closing round
     //parenthesis behind their name — I prevent these here
     if (resultType === 'release') {
       //searches for the result on discogs using its ID if it's a release
-      // var $current = $(this);
-      
-      searchReleaseDiscogsLimited(resultID, resultTitle);
+      requestUrls.push(`https://api.discogs.com/releases/${resultID}`);
+      releaseTitles.push(resultTitle);
     }
   });
+  searchReleaseDiscogsLimited(requestUrls);
 }
 /** Entry point for search function. Fetches the label entered from Discogs */
-function searchReleaseDiscogs(releaseID, releaseTitle) {
+function searchReleaseDiscogs(reqUrls) {
   console.time('searchRelease');
-  $.ajax({
-    url: 'https://api.discogs.com/releases/' + releaseID,
-    type: "GET",
-    success: function(result) {
-      let releaseArtist = result.artists[0].name;
-      let releaseYear = result.year;
-      let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
-      //push the release onto theLabel and increment totalReleases
-      theLabel.releases.push(theRelease);
-      totalReleases += 1;
+  requestAllWithDelay(reqUrls, 30)
+    .then(results => {
+      for (let item in results) {
+        let releaseArtist = results[item].artists[0].name;
+        let releaseYear = results[item].year;
+        let releaseTitle = results[item].title;
+        let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+        //push the release onto theLabel and increment totalReleases
+        theLabel.releases.push(theRelease);
+        totalReleases += 1;
+      }
 
       labelNameDiscogs = toUpperCase(labelNameDiscogs);
 
@@ -166,32 +191,78 @@ function searchReleaseDiscogs(releaseID, releaseTitle) {
         playlistName = labelNameDiscogs + "'s Complete Discography";
       }
 
-      $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-      $("#discographyFetched").modal('show');
-    },
-    error: function(xhr, data) {
+      $('#discographyFetchedText').html(
+        'We fetched a total of ' +
+          totalReleases +
+          ' releases from the ' +
+          labelNameDiscogs +
+          ' discography.<br /><br />For the next step, we will create the playlist "' +
+          playlistName +
+          '" in your Spotify account and start filling it with the releases from the ' +
+          labelNameDiscogs +
+          ' discography.'
+      );
+      $('#discographyFetched').modal('show');
+    })
+    .catch(console.error);
+  // $.ajax({
+  //   url: 'https://api.discogs.com/releases/' + releaseID,
+  //   type: 'GET',
+  //   success: function(result) {
+      // let releaseArtist = result.artists[0].name;
+      // let releaseYear = result.year;
+      // let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+      // //push the release onto theLabel and increment totalReleases
+      // theLabel.releases.push(theRelease);
+      // totalReleases += 1;
 
-      if (xhr.status == 404) {
-        $('#errorModalText').html("Unknown Record Label. Please try again.");
-        $("#errorModal").modal('show');
-      } else if (xhr.status == 0) {
+      // labelNameDiscogs = toUpperCase(labelNameDiscogs);
 
-        $('#waiting').show();
+      // if (labelNameDiscogs.match(/s$/) == 's') {
+      //   playlistName = labelNameDiscogs + "' Complete Discography";
+      // } else {
+      //   playlistName = labelNameDiscogs + "'s Complete Discography";
+      // }
 
-        //Wait a 'few' seconds, then try again
-        setTimeout(function() {
-          searchLabelDiscogs(labelName);
-        }, 61000);
-      } else if (xhr.status == 401) {
-        $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
-        $("#errorModal").modal('show');
+      // $('#discographyFetchedText').html(
+      //   'We fetched a total of ' +
+      //     totalReleases +
+      //     ' releases from the ' +
+      //     labelNameDiscogs +
+      //     ' discography.<br /><br />For the next step, we will create the playlist "' +
+      //     playlistName +
+      //     '" in your Spotify account and start filling it with the releases from the ' +
+      //     labelNameDiscogs +
+      //     ' discography.'
+      // );
+      // $('#discographyFetched').modal('show');
+  //   },
+  //   error: function(xhr, data) {
+  //     if (xhr.status == 404) {
+  //       $('#errorModalText').html('Unknown Record Label. Please try again.');
+  //       $('#errorModal').modal('show');
+  //     } else if (xhr.status == 0) {
+  //       $('#waiting').show();
 
-      } else {
-        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
-        $("#errorModal").modal('show');
-      }
-    }
-  });
+  //       //Wait a 'few' seconds, then try again
+  //       setTimeout(function() {
+  //         searchLabelDiscogs(labelName);
+  //       }, 61000);
+  //     } else if (xhr.status == 401) {
+  //       $('#errorModalText').html(
+  //         "We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs."
+  //       );
+  //       $('#errorModal').modal('show');
+  //     } else {
+  //       $('#errorModalText').html(
+  //         'Something went wrong while fetching the discography: ' +
+  //           xhr.status +
+  //           '. Please try again.'
+  //       );
+  //       $('#errorModal').modal('show');
+  //     }
+  //   }
+  // });
   console.timeEnd('searchRelease');
 }
 
@@ -201,15 +272,15 @@ function encodeURIfix(str) {
 
 /** Creates a new playlist in the user's Spotify account, using the Discogs username */
 function createPlaylist() {
-
   $.ajax({
-    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
+    url:
+      'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
     headers: {
-      'Authorization': 'Bearer ' + spotify_token
+      Authorization: 'Bearer ' + spotify_token
     },
-    data: JSON.stringify({"name": playlistName, "public": true}),
-    type: "POST",
-    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify({ name: playlistName, public: true }),
+    type: 'POST',
+    contentType: 'application/json; charset=utf-8',
     dataType: 'json',
     success: function(result) {
       playlistID = result.id;
@@ -217,26 +288,25 @@ function createPlaylist() {
       // updateProgressBar(20);
 
       exportToSpotify();
-
     },
     error: function(request, xhr, data) {
       errorJSON = request.responseJSON;
       message = errorJSON.error.message;
 
-      $('#errorModalText').html("Something went wrong while creating a Spotify playlist: " + xhr.status + ". Please try again. (" + message + ")");
-      $("#errorModal").modal('show');
-
+      $('#errorModalText').html(
+        'Something went wrong while creating a Spotify playlist: ' +
+          xhr.status +
+          '. Please try again. (' +
+          message +
+          ')'
+      );
+      $('#errorModal').modal('show');
     }
   });
-
 }
 /** Gets the next artist from the global array and exports the artist's releases to Spotify */
 function exportToSpotify() {
-
-
-
   if (theLabel.releases.length > 0) {
-
     // var artist = globalArtists[0];
     // globalArtists.splice(0, 1);
 
@@ -245,16 +315,13 @@ function exportToSpotify() {
     $.each(theLabel.releases, function(pos, release) {
       console.log('In EACH release in exportToSpotify — RELEASE:', release);
       searchReleaseOnSpotify(release);
-
     });
 
     // adedArtistCount++;
 
     //Update Progress AND export next artist
     // updateProgress();
-
   } else {
-
     //   $('#releasesAddedText').empty();
     //   $('#releasesAddedText').append(addedCount + " releases were already added to your Spotify playlist automatically. ");
     //
@@ -267,14 +334,11 @@ function exportToSpotify() {
     //   $("#releasesAdded").modal('show');
     //
   }
-
 }
 /** If there are releases with multiple possible matches, we display a modal to make the user decide
  * which is the right one */
 function exportMultipleMatches() {
-
   if (multipleMatches.length > 0) {
-
     var match = multipleMatches[0];
 
     multipleMatches.splice(0, 1);
@@ -283,16 +347,20 @@ function exportMultipleMatches() {
     $('#spotifyDiv').empty();
 
     var release = match.release;
-    var yearString = (release.year != 0)
-      ? " (" + release.year + ")"
-      : "";
+    var yearString = release.year != 0 ? ' (' + release.year + ')' : '';
 
-    $('#bestMatchHeader').html("<h4 class='modal-title'>Choose the best match for <b>" + release.title + "</b> by " + release.artistName + yearString + "</h4>");
+    $('#bestMatchHeader').html(
+      "<h4 class='modal-title'>Choose the best match for <b>" +
+        release.title +
+        '</b> by ' +
+        release.artistName +
+        yearString +
+        '</h4>'
+    );
 
     var matches = match.matches;
 
     $.each(matches, function(pos, album) {
-
       var name = album.name;
       var albumID = album.id;
       var imageURL = '../record.png';
@@ -301,64 +369,74 @@ function exportMultipleMatches() {
         imageURL = album.images[0].url;
       }
 
-      $('#spotifyDiv').append('<div><img src="' + imageURL + '" width="20%" style="display:inline-block; margin:10px; vertical-align:top"><div style="display:inline-block; width:70%"><h4>' + album.name + '</h4><button id="' + albumID + ' ' + imageURL + '" type="button" class="btn btn-success" onClick = "saveAlbumFromMulti(this.id)"><span class="icon-checkmark"></span> Choose this</button></div></div>');
-
+      $('#spotifyDiv').append(
+        '<div><img src="' +
+          imageURL +
+          '" width="20%" style="display:inline-block; margin:10px; vertical-align:top"><div style="display:inline-block; width:70%"><h4>' +
+          album.name +
+          '</h4><button id="' +
+          albumID +
+          ' ' +
+          imageURL +
+          '" type="button" class="btn btn-success" onClick = "saveAlbumFromMulti(this.id)"><span class="icon-checkmark"></span> Choose this</button></div></div>'
+      );
     });
 
-    $('#noMatchButton').html('<span class="icon-cancel-circle"></span> None of the above');
+    $('#noMatchButton').html(
+      '<span class="icon-cancel-circle"></span> None of the above'
+    );
 
-    $("#bestMatch").modal('show');
-
+    $('#bestMatch').modal('show');
   } else {
     updateProgressBar(90);
     showNoMatch();
   }
-
 }
 
 /** Reacts to the button in the modal and saves the chosen release to the playlist */
 function saveAlbumFromMulti(idAndURL) {
+  $('#bestMatch').modal('hide');
 
-  $("#bestMatch").modal('hide');
-
-  var seperated = idAndURL.split(" ");
+  var seperated = idAndURL.split(' ');
 
   saveAlbumToPlaylist(seperated[0], seperated[1]);
-
 }
 
 /** Displays the modal with all releases without a match on Spotify. End of the export. */
 function showNoMatch() {
-
   $('#noMatchDiv').empty();
 
   if (withoutMatches.length > 0) {
-
-    $('#noMatchDiv').append("<ul>");
+    $('#noMatchDiv').append('<ul>');
 
     $.each(withoutMatches, function(pos, release) {
-
-      $('#noMatchDiv').append("<li><b>" + release.artistName + "</b>: " + release.title + " (" + release.year + ")" + "  </li>")
+      $('#noMatchDiv').append(
+        '<li><b>' +
+          release.artistName +
+          '</b>: ' +
+          release.title +
+          ' (' +
+          release.year +
+          ')' +
+          '  </li>'
+      );
     });
 
-    $('#noMatchDiv').append("</ul>");
+    $('#noMatchDiv').append('</ul>');
 
-    $("#noMatch").modal('show');
+    $('#noMatch').modal('show');
     exportIsActive = false;
-
   }
-
 }
 
 /** Start a search on Spotify and handle the result */
 function searchReleaseOnSpotify(release) {
-
-  var rTitle = release.title.replace(`${release.artistName} - `,'');
+  var rTitle = release.title.replace(`${release.artistName} - `, '');
 
   console.log('rTitle is:', rTitle);
   console.log('artistName is:', release.artistName);
 
-  if (rTitle.endsWith("EP") || rTitle.endsWith("LP")) {
+  if (rTitle.endsWith('EP') || rTitle.endsWith('LP')) {
     rTitle = rTitle.slice(0, -2).trim();
   }
 
@@ -370,26 +448,27 @@ function searchReleaseOnSpotify(release) {
     url: 'https://api.spotify.com/v1/search',
     // url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
     headers: {
-      'Authorization': 'Bearer ' + spotify_token
+      Authorization: 'Bearer ' + spotify_token
     },
     data: {
       q: query,
       type: 'album',
       market: usrCountry
     },
-    type: "GET",
+    type: 'GET',
     success: function(result, err) {
-
       console.log('about to handleResultFromSpotify. ERROR:', err);
       console.log('about to handleResultFromSpotify. RESULT:', result);
       // console.log('about to handleResultFromSpotify. RELEASE:', release);
       handleResultFromSpotify(result, release);
     },
     error: function(request, xhr, data) {
-
-      $('#errorModalText').html("Something went wrong while searching on Spotify: " + xhr.status + ". Please try again.");
-      $("#errorModal").modal('show');
-
+      $('#errorModalText').html(
+        'Something went wrong while searching on Spotify: ' +
+          xhr.status +
+          '. Please try again.'
+      );
+      $('#errorModal').modal('show');
     },
     async: false
   });
@@ -398,11 +477,13 @@ function searchReleaseOnSpotify(release) {
 /** Decides if any album from the Spotify-result is a perfect match for the given release,
  * or if the user has to choose the right one manually */
 function handleResultFromSpotify(result, release) {
-
   //Possible matches
   var items = result.albums.items;
 
-  console.log('In handleResultFromSpotify: result.albums.items (or items)', result);
+  console.log(
+    'In handleResultFromSpotify: result.albums.items (or items)',
+    result
+  );
   //nothing found
   if (items.length === 0) {
     withoutMatches.push(release);
@@ -413,12 +494,10 @@ function handleResultFromSpotify(result, release) {
 
   //Loop to find exact matches
   $.each(items, function(pos, album) {
-
     var name = album.name;
 
     //exact match
     if (!done && name.toLowerCase() === release.title.toLowerCase()) {
-
       done = true;
 
       var albumID = album.id;
@@ -436,7 +515,6 @@ function handleResultFromSpotify(result, release) {
 
   //One and only match - hope it's the right one
   if (!done && items.length === 1) {
-
     done = true;
     var album = items[0];
 
@@ -454,52 +532,51 @@ function handleResultFromSpotify(result, release) {
 
   //More than one possible match - let the user decide
   if (!done && items.length > 1) {
-
     var m = new multipleMatch(release, items);
     multipleMatches.push(m);
 
     done = true;
     return;
   }
-
 }
 
 /** Gets an album's tracks and has them saved to the playlist. Adds the cover to the site */
 function saveAlbumToPlaylist(albumID, imageURL) {
-
-
   console.log('saveAlbumToPlaylist: albumID', albumID);
 
   return $.ajax({
     url: 'https://api.spotify.com/v1/albums/' + albumID + '/tracks',
     headers: {
-      'Authorization': 'Bearer ' + spotify_token
+      Authorization: 'Bearer ' + spotify_token
     },
     data: {
       market: usrCountry
     },
-    type: "GET",
+    type: 'GET',
     success: function(result) {
-
       saveAlbumTracks(result);
 
       $('<img src="' + imageURL + '">').load(function() {
-        $(this).width('15%').css("margin", "2.5%").appendTo($('#imageDiv'));
+        $(this)
+          .width('15%')
+          .css('margin', '2.5%')
+          .appendTo($('#imageDiv'));
       });
-
     },
     error: function(request, xhr, data) {
-      $('#errorModalText').html("Something went wrong while getting the album tracks: " + xhr.status + ". Please try again.");
-      $("#errorModal").modal('show');
+      $('#errorModalText').html(
+        'Something went wrong while getting the album tracks: ' +
+          xhr.status +
+          '. Please try again.'
+      );
+      $('#errorModal').modal('show');
     },
     async: false
   });
-
 }
 
 /** Saves tracks to the playlist */
 function saveAlbumTracks(tracks) {
-
   console.log('IN saveAlbumTracks: TRACKS', tracks);
 
   var spotifyURIs = [];
@@ -509,23 +586,29 @@ function saveAlbumTracks(tracks) {
   });
 
   return $.ajax({
-    url: 'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists/' + playlistID + '/tracks',
+    url:
+      'https://api.spotify.com/v1/users/' +
+      encodeURIfix(usrID) +
+      '/playlists/' +
+      playlistID +
+      '/tracks',
     headers: {
-      'Authorization': 'Bearer ' + spotify_token
+      Authorization: 'Bearer ' + spotify_token
     },
-    data: JSON.stringify({"uris": spotifyURIs}),
-    type: "POST",
-    contentType: "application/json; charset=utf-8",
+    data: JSON.stringify({ uris: spotifyURIs }),
+    type: 'POST',
+    contentType: 'application/json; charset=utf-8',
     dataType: 'json',
     success: function(result) {
       addedCount++;
-
     },
     error: function(request, xhr, data) {
-
-      $('#errorModalText').html("Something went wrong while saving the tracks to your playlist: " + xhr.status + ". Please try again.");
-      $("#errorModal").modal('show');
-
+      $('#errorModalText').html(
+        'Something went wrong while saving the tracks to your playlist: ' +
+          xhr.status +
+          '. Please try again.'
+      );
+      $('#errorModal').modal('show');
     },
     async: false
   });
@@ -537,7 +620,7 @@ function getHashParams() {
   var e,
     r = /([^&;=]+)=?([^&;]*)/g,
     q = window.location.hash.substring(1);
-  while (e = r.exec(q)) {
+  while ((e = r.exec(q))) {
     hashParams[e[1]] = decodeURIComponent(e[2]);
   }
   return hashParams;
@@ -545,21 +628,25 @@ function getHashParams() {
 
 /** Update the progressbar to the given number in percent */
 function updateProgressBar(percent) {
-
   percent = Math.round(percent);
 
-  $('.progress-bar').css('width', percent + '%').attr('aria-valuenow', percent);
+  $('.progress-bar')
+    .css('width', percent + '%')
+    .attr('aria-valuenow', percent);
   $('#progressNumber').html(percent + '%');
 }
 
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchLabelDiscogs(labelName, page) {
-
   $.ajax({
-    url: 'https://api.discogs.com/database/search?label=' + labelName + '&page=' + page + '&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
-    type: "GET",
+    url:
+      'https://api.discogs.com/database/search?label=' +
+      labelName +
+      '&page=' +
+      page +
+      '&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
+    type: 'GET',
     success: function(result) {
-
       identifyLabelResults(result);
 
       var currentPage = result.pagination.page;
@@ -577,9 +664,7 @@ function searchLabelDiscogs(labelName, page) {
 
         //Continue after a timeout so the progress gets updated
         setTimeout(searchLabelDiscogs, 500, labelName, nextPage);
-
       } else {
-
         //When all pages are loaded, the progress must be 20%
         updateProgressBar(20);
 
@@ -589,33 +674,44 @@ function searchLabelDiscogs(labelName, page) {
           playlistName = labelNameDiscogs + "'s Complete Discography";
         }
 
-        $('#discographyFetchedText').html('We fetched a total of ' + totalReleases + ' releases from the ' + labelNameDiscogs + ' discography.<br /><br />For the next step, we will create the playlist "' + playlistName + '" in your Spotify account and start filling it with the releases from the ' + labelNameDiscogs + ' discography.');
-        $("#discographyFetched").modal('show');
+        $('#discographyFetchedText').html(
+          'We fetched a total of ' +
+            totalReleases +
+            ' releases from the ' +
+            labelNameDiscogs +
+            ' discography.<br /><br />For the next step, we will create the playlist "' +
+            playlistName +
+            '" in your Spotify account and start filling it with the releases from the ' +
+            labelNameDiscogs +
+            ' discography.'
+        );
+        $('#discographyFetched').modal('show');
       }
-
     },
     error: function(xhr, data) {
-
       if (xhr.status == 404) {
-        $('#errorModalText').html("Unknown Record Label. Please try again.");
-        $("#errorModal").modal('show');
+        $('#errorModalText').html('Unknown Record Label. Please try again.');
+        $('#errorModal').modal('show');
       } else if (xhr.status == 0) {
-
         $('#waiting').show();
 
         //Wait a 'few' seconds, then try again
         setTimeout(searchLabelDiscogs, 61000, labelName, page);
       } else if (xhr.status == 401) {
-        $('#errorModalText').html("We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs.");
-        $("#errorModal").modal('show');
-
+        $('#errorModalText').html(
+          "We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs."
+        );
+        $('#errorModal').modal('show');
       } else {
-        $('#errorModalText').html("Something went wrong while fetching the discography: " + xhr.status + ". Please try again.");
-        $("#errorModal").modal('show');
+        $('#errorModalText').html(
+          'Something went wrong while fetching the discography: ' +
+            xhr.status +
+            '. Please try again.'
+        );
+        $('#errorModal').modal('show');
       }
     }
   });
-
 }
 /************************************
 //                                  *
@@ -624,14 +720,12 @@ function searchLabelDiscogs(labelName, page) {
 //***********************************/
 
 $(document).ready(() => {
-
   $('#search-labels').hover(function() {
     $(this).css('cursor', 'pointer');
   });
 
   const params = getURLParams();
   spotify_token = params.access_token;
-
 
   //Set exportIsActive to false on page load in the event that the previous
   //export did not complete
@@ -642,10 +736,9 @@ $(document).ready(() => {
     $.ajax({
       url: 'https://api.spotify.com/v1/me',
       headers: {
-        'Authorization': 'Bearer ' + spotify_token
+        Authorization: 'Bearer ' + spotify_token
       },
-      success: (response) => {
-
+      success: response => {
         // $('#login').hide();
         // $('#loggedin').show();
 
@@ -660,17 +753,16 @@ $(document).ready(() => {
         }
 
         if (usrImageURL !== '') {
-          usrImage = '<img src=""' + usrImageURL + '>'
+          usrImage = '<img src=""' + usrImageURL + '>';
         }
 
-        ////BRING BACK 
+        ////BRING BACK
 
         // if (usrNameSpotify === null) {
         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
         // } else {
         //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
         // }
-
       },
       error: (xhr, data) => {
         // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
@@ -683,7 +775,7 @@ $(document).ready(() => {
 
   //Search Start Button
   $('#search-labels').click(function(e) {
-    e.preventDefault()
+    e.preventDefault();
     // console.log('clicked');
     //Prevent starting the export twice
     if (exportIsActive === true) {
@@ -700,7 +792,9 @@ $(document).ready(() => {
       totalReleases = 0;
       adedArtistCount = 0;
 
-      labelNameDiscogs = $('#GET-label-search').val().toLowerCase();
+      labelNameDiscogs = $('#GET-label-search')
+        .val()
+        .toLowerCase();
 
       // $('#imageDiv').empty();
       // $('#progressDiv').removeClass('hide');
