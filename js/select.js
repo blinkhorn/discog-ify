@@ -171,7 +171,7 @@ function identifyLabelResults(discogsResult) {
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(reqUrls) {
   console.time('searchRelease');
-  requestAllWithDelay(reqUrls, 30)
+  requestAllWithDelay(reqUrls, 3000)
     .then(results => {
       for (let item in results) {
         let releaseArtist = results[item].artists[0].name;
