@@ -15,7 +15,7 @@ let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
 let exportIsActive = false;
-let usrID = '';
+let usrID = ''+126619775;
 let usrCountry = '';
 let usrNameSpotify = '';
 let usrImageURL = '';
