@@ -471,35 +471,52 @@ function searchReleaseOnSpotify(release) {
   var query = 'album:"' + rTitle + '" artist:"' + release.artistName + '"';
 
   // console.log('IN searchReleaseOnSpotify. Release QUERY:', query);
-
-  $.ajax({
-    url: 'https://api.spotify.com/v1/search',
-    // url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
-    headers: {
-      Authorization: 'Bearer ' + spotify_token
-    },
-    data: {
-      q: query,
-      type: 'album',
-      market: usrCountry
-    },
-    type: 'GET',
-    success: function(result, err) {
-      console.log('about to handleResultFromSpotify. ERROR:', err);
-      console.log('about to handleResultFromSpotify. RESULT:', result);
-      // console.log('about to handleResultFromSpotify. RELEASE:', release);
-      handleResultFromSpotify(result, release);
-    },
-    error: function(request, xhr, data) {
-      $('#errorModalText').html(
-        'Something went wrong while searching on Spotify: ' +
-          xhr.status +
-          '. Please try again.'
-      );
-      $('#errorModal').modal('show');
-    },
-    async: false
-  });
+  fetch(
+    `https://api.spotify.com/v1/search?q=${query}&type=album&market=${usrCountry}`,
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + spotify_token
+      }
+    }
+  )
+    .then(res => res.json())
+    .then(response => {
+      return new Promise(resolve => {
+        // setTimeout(resolve, delay, responses.concat(response));
+        console.log('response', response);
+        handleResultFromSpotify(response, release)
+      });
+    })
+    .catch(console.error);
+  // $.ajax({
+  //   url: 'https://api.spotify.com/v1/search',
+  //   // url: 'https://api.spotify.com/v1/search?q=album:' + rTitle + '&artist:' + release.artistName + '&type=album',
+  //   headers: {
+  //     Authorization: 'Bearer ' + spotify_token
+  //   },
+  //   data: {
+  //     q: query,
+  //     type: 'album',
+  //     market: usrCountry
+  //   },
+  //   type: 'GET',
+  //   success: function(result, err) {
+  //     console.log('about to handleResultFromSpotify. ERROR:', err);
+  //     console.log('about to handleResultFromSpotify. RESULT:', result);
+  //     // console.log('about to handleResultFromSpotify. RELEASE:', release);
+  //     handleResultFromSpotify(result, release);
+  //   },
+  //   error: function(request, xhr, data) {
+  //     $('#errorModalText').html(
+  //       'Something went wrong while searching on Spotify: ' +
+  //         xhr.status +
+  //         '. Please try again.'
+  //     );
+  //     $('#errorModal').modal('show');
+  //   },
+  //   async: false
+  // });
 }
 
 /** Decides if any album from the Spotify-result is a perfect match for the given release,
