@@ -99,7 +99,7 @@ function requestAllWithDelay(urls, delay) {
         .then(response => {
           return new Promise(resolve => {
             setTimeout(resolve, delay, responses.concat(response));
-            console.log('response', response)
+            console.log('response', response);
           });
         });
     });
@@ -209,33 +209,33 @@ function searchReleaseDiscogs(reqUrls) {
   //   url: 'https://api.discogs.com/releases/' + releaseID,
   //   type: 'GET',
   //   success: function(result) {
-      // let releaseArtist = result.artists[0].name;
-      // let releaseYear = result.year;
-      // let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
-      // //push the release onto theLabel and increment totalReleases
-      // theLabel.releases.push(theRelease);
-      // totalReleases += 1;
+  // let releaseArtist = result.artists[0].name;
+  // let releaseYear = result.year;
+  // let theRelease = new Release(releaseTitle, releaseArtist, releaseYear);
+  // //push the release onto theLabel and increment totalReleases
+  // theLabel.releases.push(theRelease);
+  // totalReleases += 1;
 
-      // labelNameDiscogs = toUpperCase(labelNameDiscogs);
+  // labelNameDiscogs = toUpperCase(labelNameDiscogs);
 
-      // if (labelNameDiscogs.match(/s$/) == 's') {
-      //   playlistName = labelNameDiscogs + "' Complete Discography";
-      // } else {
-      //   playlistName = labelNameDiscogs + "'s Complete Discography";
-      // }
+  // if (labelNameDiscogs.match(/s$/) == 's') {
+  //   playlistName = labelNameDiscogs + "' Complete Discography";
+  // } else {
+  //   playlistName = labelNameDiscogs + "'s Complete Discography";
+  // }
 
-      // $('#discographyFetchedText').html(
-      //   'We fetched a total of ' +
-      //     totalReleases +
-      //     ' releases from the ' +
-      //     labelNameDiscogs +
-      //     ' discography.<br /><br />For the next step, we will create the playlist "' +
-      //     playlistName +
-      //     '" in your Spotify account and start filling it with the releases from the ' +
-      //     labelNameDiscogs +
-      //     ' discography.'
-      // );
-      // $('#discographyFetched').modal('show');
+  // $('#discographyFetchedText').html(
+  //   'We fetched a total of ' +
+  //     totalReleases +
+  //     ' releases from the ' +
+  //     labelNameDiscogs +
+  //     ' discography.<br /><br />For the next step, we will create the playlist "' +
+  //     playlistName +
+  //     '" in your Spotify account and start filling it with the releases from the ' +
+  //     labelNameDiscogs +
+  //     ' discography.'
+  // );
+  // $('#discographyFetched').modal('show');
   //   },
   //   error: function(xhr, data) {
   //     if (xhr.status == 404) {
@@ -272,37 +272,65 @@ function encodeURIfix(str) {
 
 /** Creates a new playlist in the user's Spotify account, using the Discogs username */
 function createPlaylist() {
-  $.ajax({
-    url:
-      'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
-    headers: {
-      Authorization: 'Bearer ' + spotify_token
-    },
-    data: JSON.stringify({ name: playlistName, public: true }),
-    type: 'POST',
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'json',
-    success: function(result) {
-      playlistID = result.id;
-
-      // updateProgressBar(20);
-
-      exportToSpotify();
-    },
-    error: function(request, xhr, data) {
-      errorJSON = request.responseJSON;
-      message = errorJSON.error.message;
-
-      $('#errorModalText').html(
-        'Something went wrong while creating a Spotify playlist: ' +
-          xhr.status +
-          '. Please try again. (' +
-          message +
-          ')'
-      );
-      $('#errorModal').modal('show');
+  fetch(
+    'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
+    {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, cors, *same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + spotify_token
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrer: 'no-referrer', // no-referrer, *client
+      body: JSON.stringify({ name: playlistName, public: true }) // body data type must match "Content-Type" header
     }
-  });
+  )
+    .then(res => res.json())
+    .then(response => {
+      return new Promise(resolve => {
+        // setTimeout(resolve, delay, responses.concat(response));
+        console.log('response', response);
+        playlistID = result.id;
+        exportToSpotify();
+      });
+    })
+    .catch(console.error);
+
+  // $.ajax({
+  //   url:
+  //     'https://api.spotify.com/v1/users/' + encodeURIfix(usrID) + '/playlists',
+  //   headers: {
+  //     Authorization: 'Bearer ' + spotify_token
+  //   },
+  //   data: JSON.stringify({ name: playlistName, public: true }),
+  //   type: 'POST',
+  //   contentType: 'application/json; charset=utf-8',
+  //   dataType: 'json',
+  //   success: function(result) {
+  //     playlistID = result.id;
+
+  //     // updateProgressBar(20);
+
+  //     exportToSpotify();
+  //   },
+  //   error: function(request, xhr, data) {
+  //     errorJSON = request.responseJSON;
+  //     message = errorJSON.error.message;
+
+  //     $('#errorModalText').html(
+  //       'Something went wrong while creating a Spotify playlist: ' +
+  //         xhr.status +
+  //         '. Please try again. (' +
+  //         message +
+  //         ')'
+  //     );
+  //     $('#errorModal').modal('show');
+  //   }
+  // })
 }
 /** Gets the next artist from the global array and exports the artist's releases to Spotify */
 function exportToSpotify() {
