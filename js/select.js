@@ -294,7 +294,7 @@ function createPlaylist() {
       return new Promise(resolve => {
         // setTimeout(resolve, delay, responses.concat(response));
         console.log('response', response);
-        playlistID = result.id;
+        playlistID = response.id;
         exportToSpotify();
       });
     })
@@ -753,7 +753,8 @@ $(document).ready(() => {
   });
 
   const params = getURLParams();
-  spotify_token = params.access_token;
+  // spotify_token = params.access_token;
+  spotify_token = 'BQBIz9nez7oJAbvi7MUhyW29ufj2xl0oCWBmYE5s1KAhE01HmqYCwh1nmJEdMVS6vJaGCJA8LecKdPKNkNW-jW98yWLALEhhG3yeNx5HsBYmg8ZgVEiSU5zTfpis3Zi_gdWD8Ll5V4UO4AeTD25FgUWLRFjuGxdQ_bAfgdAIRTkRY5JpC6BS7WiTyREG4Xr-jREV6dZsWf-mbKWldyw4p3XPfn0';
 
   //Set exportIsActive to false on page load in the event that the previous
   //export did not complete
