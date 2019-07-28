@@ -743,6 +743,7 @@ $(document).ready(() => {
         // $('#loggedin').show();
 
         usrID = response.id;
+        console.log('usrID', usrID);
         usrCountry = response.country;
         usrNameSpotify = response.display_name;
         usrImageURL = '';
