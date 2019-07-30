@@ -15,8 +15,8 @@ let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
 let exportIsActive = false;
-let usrID = ''+126619775;
-let usrCountry = '';
+let usrID = '' + 126619775;
+let usrCountry = 'US';
 let usrNameSpotify = '';
 let usrImageURL = '';
 let usrImage = '';
@@ -143,8 +143,9 @@ function getURLParams() {
 }
 
 const params = getURLParams();
-spotify_token = params.access_token;
-
+// spotify_token = params.access_token;
+spotify_token =
+  'BQB_wB1YhAqHoqTqQu2ue1FShAHDbnoK2ujcDlDD1amU17tos90sw9dDD7MkBaJQmiXzxLaKDVFl5vQEH-t3AGwaaao9C3HsJB8EoZWTxKiLVi910EbpjlDwXVVHRzw7iiuZK6joRw-sKQBHjnAcTIQMsUiCCfqAakOWeFGfUHRINbSI6hc1P8lIhbpAreFMDaP6ru-iclCj1x1kkxIHgG7_JOo';
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
@@ -281,7 +282,7 @@ function createPlaylist() {
       credentials: 'same-origin', // include, *same-origin, omit
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + spotify_token
+        Authorization: 'Bearer ' + spotify_token
         // 'Content-Type': 'application/x-www-form-urlencoded',
       },
       redirect: 'follow', // manual, *follow, error
@@ -476,7 +477,7 @@ function searchReleaseOnSpotify(release) {
     {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer ' + spotify_token
+        Authorization: 'Bearer ' + spotify_token
       }
     }
   )
@@ -485,7 +486,7 @@ function searchReleaseOnSpotify(release) {
       return new Promise(resolve => {
         // setTimeout(resolve, delay, responses.concat(response));
         console.log('response', response);
-        handleResultFromSpotify(response, release)
+        handleResultFromSpotify(response, release);
       });
     })
     .catch(console.error);
@@ -588,36 +589,23 @@ function handleResultFromSpotify(result, release) {
 /** Gets an album's tracks and has them saved to the playlist. Adds the cover to the site */
 function saveAlbumToPlaylist(albumID, imageURL) {
   console.log('saveAlbumToPlaylist: albumID', albumID);
-
-  return $.ajax({
-    url: 'https://api.spotify.com/v1/albums/' + albumID + '/tracks',
-    headers: {
-      Authorization: 'Bearer ' + spotify_token
-    },
-    data: {
-      market: usrCountry
-    },
-    type: 'GET',
-    success: function(result) {
-      saveAlbumTracks(result);
-
-      $('<img src="' + imageURL + '">').load(function() {
-        $(this)
-          .width('15%')
-          .css('margin', '2.5%')
-          .appendTo($('#imageDiv'));
+  return fetch(
+    `https://api.spotify.com/v1/albums/${albumID}/tracks?market=${usrCountry}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + spotify_token
+      }
+    }
+  )
+    .then(res => res.json())
+    .then(response => {
+      return new Promise(resolve => {
+        // setTimeout(resolve, delay, responses.concat(response));
+        saveAlbumTracks(response);
       });
-    },
-    error: function(request, xhr, data) {
-      $('#errorModalText').html(
-        'Something went wrong while getting the album tracks: ' +
-          xhr.status +
-          '. Please try again.'
-      );
-      $('#errorModal').modal('show');
-    },
-    async: false
-  });
+    })
+    .catch(console.error);
 }
 
 /** Saves tracks to the playlist */
@@ -629,34 +617,53 @@ function saveAlbumTracks(tracks) {
   $.each(tracks.items, function(pos, item) {
     spotifyURIs.push(item.uri);
   });
-
-  return $.ajax({
-    url:
-      'https://api.spotify.com/v1/users/' +
-      encodeURIfix(usrID) +
-      '/playlists/' +
-      playlistID +
-      '/tracks',
-    headers: {
-      Authorization: 'Bearer ' + spotify_token
-    },
-    data: JSON.stringify({ uris: spotifyURIs }),
-    type: 'POST',
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'json',
-    success: function(result) {
-      addedCount++;
-    },
-    error: function(request, xhr, data) {
-      $('#errorModalText').html(
-        'Something went wrong while saving the tracks to your playlist: ' +
-          xhr.status +
-          '. Please try again.'
-      );
-      $('#errorModal').modal('show');
-    },
-    async: false
-  });
+  return fetch(
+    `https://api.spotify.com/v1/users/${encodeURIfix(
+      usrID
+    )}/playlists/${playlistID}/tracks?uris=${spotifyURIs}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + spotify_token
+      }
+    }
+  )
+    .then(res => res.json())
+    .then(response => {
+      return new Promise(resolve => {
+        // setTimeout(resolve, delay, responses.concat(response));
+        addedCount++;
+      });
+    })
+    .catch(console.error);
+  // return $.ajax({
+  //   url:
+  //     'https://api.spotify.com/v1/users/' +
+  //     encodeURIfix(usrID) +
+  //     '/playlists/' +
+  //     playlistID +
+  //     '/tracks',
+  //   headers: {
+  //     Authorization: 'Bearer ' + spotify_token
+  //   },
+  //   data: JSON.stringify({ uris: spotifyURIs }),
+  //   type: 'POST',
+  //   contentType: 'application/json; charset=utf-8',
+  //   dataType: 'json',
+  //   success: function(result) {
+  //     addedCount++;
+  //   },
+  //   error: function(request, xhr, data) {
+  //     $('#errorModalText').html(
+  //       'Something went wrong while saving the tracks to your playlist: ' +
+  //         xhr.status +
+  //         '. Please try again.'
+  //     );
+  //     $('#errorModal').modal('show');
+  //   },
+  //   async: false
+  // });
 }
 
 /** Gets parameters from the hash of the URL */
@@ -683,80 +690,129 @@ function updateProgressBar(percent) {
 
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchLabelDiscogs(labelName, page) {
-  $.ajax({
-    url:
-      'https://api.discogs.com/database/search?label=' +
-      labelName +
-      '&page=' +
-      page +
-      '&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
-    type: 'GET',
-    success: function(result) {
-      identifyLabelResults(result);
+  fetch(
+    `https://api.discogs.com/database/search?label=${labelName}&page=${page}&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU`
+  )
+    .then(res => res.json())
+    .then(response => {
+      return new Promise(resolve => {
+        identifyLabelResults(response);
 
-      var currentPage = result.pagination.page;
-      var pages = result.pagination.pages;
+        var currentPage = response.pagination.page;
+        var pages = response.pagination.pages;
 
-      //next page
-      if (currentPage < pages) {
-        console.log('length', pages.length);
-        console.log('pages', pages);
+        //next page
+        if (currentPage < pages) {
+          console.log('length', pages.length);
+          console.log('pages', pages);
 
-        var currentProgress = (currentPage / pages) * 20;
-        updateProgressBar(currentProgress);
+          var currentProgress = (currentPage / pages) * 20;
+          updateProgressBar(currentProgress);
 
-        var nextPage = currentPage + 1;
+          var nextPage = currentPage + 1;
 
-        //Continue after a timeout so the progress gets updated
-        setTimeout(searchLabelDiscogs, 500, labelName, nextPage);
-      } else {
-        //When all pages are loaded, the progress must be 20%
-        updateProgressBar(20);
-
-        if (labelNameDiscogs.match(/s$/) == 's') {
-          playlistName = labelNameDiscogs + "' Complete Discography";
+          //Continue after a timeout so the progress gets updated
+          setTimeout(searchLabelDiscogs, 500, labelName, nextPage);
         } else {
-          playlistName = labelNameDiscogs + "'s Complete Discography";
+          //When all pages are loaded, the progress must be 20%
+          updateProgressBar(20);
+
+          if (labelNameDiscogs.match(/s$/) == 's') {
+            playlistName = labelNameDiscogs + "' Complete Discography";
+          } else {
+            playlistName = labelNameDiscogs + "'s Complete Discography";
+          }
+
+          $('#discographyFetchedText').html(
+            'We fetched a total of ' +
+              totalReleases +
+              ' releases from the ' +
+              labelNameDiscogs +
+              ' discography.<br /><br />For the next step, we will create the playlist "' +
+              playlistName +
+              '" in your Spotify account and start filling it with the releases from the ' +
+              labelNameDiscogs +
+              ' discography.'
+          );
+          $('#discographyFetched').modal('show');
         }
+      });
+    })
+    .catch(console.error);
+  // $.ajax({
+  //   url:
+  //     'https://api.discogs.com/database/search?label=' +
+  //     labelName +
+  //     '&page=' +
+  //     page +
+  //     '&per_page=100&key=lBpUvlqVdhpEmETyEQET&secret=rIRyCFQWBchoSLrneGdbHSADEbytHkKU',
+  //   type: 'GET',
+  //   success: function(result) {
+  //     identifyLabelResults(result);
 
-        $('#discographyFetchedText').html(
-          'We fetched a total of ' +
-            totalReleases +
-            ' releases from the ' +
-            labelNameDiscogs +
-            ' discography.<br /><br />For the next step, we will create the playlist "' +
-            playlistName +
-            '" in your Spotify account and start filling it with the releases from the ' +
-            labelNameDiscogs +
-            ' discography.'
-        );
-        $('#discographyFetched').modal('show');
-      }
-    },
-    error: function(xhr, data) {
-      if (xhr.status == 404) {
-        $('#errorModalText').html('Unknown Record Label. Please try again.');
-        $('#errorModal').modal('show');
-      } else if (xhr.status == 0) {
-        $('#waiting').show();
+  //     var currentPage = result.pagination.page;
+  //     var pages = result.pagination.pages;
 
-        //Wait a 'few' seconds, then try again
-        setTimeout(searchLabelDiscogs, 61000, labelName, page);
-      } else if (xhr.status == 401) {
-        $('#errorModalText').html(
-          "We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs."
-        );
-        $('#errorModal').modal('show');
-      } else {
-        $('#errorModalText').html(
-          'Something went wrong while fetching the discography: ' +
-            xhr.status +
-            '. Please try again.'
-        );
-        $('#errorModal').modal('show');
-      }
-    }
-  });
+  //     //next page
+  //     if (currentPage < pages) {
+  //       console.log('length', pages.length);
+  //       console.log('pages', pages);
+
+  //       var currentProgress = (currentPage / pages) * 20;
+  //       updateProgressBar(currentProgress);
+
+  //       var nextPage = currentPage + 1;
+
+  //       //Continue after a timeout so the progress gets updated
+  //       setTimeout(searchLabelDiscogs, 500, labelName, nextPage);
+  //     } else {
+  //       //When all pages are loaded, the progress must be 20%
+  //       updateProgressBar(20);
+
+  //       if (labelNameDiscogs.match(/s$/) == 's') {
+  //         playlistName = labelNameDiscogs + "' Complete Discography";
+  //       } else {
+  //         playlistName = labelNameDiscogs + "'s Complete Discography";
+  //       }
+
+  //       $('#discographyFetchedText').html(
+  //         'We fetched a total of ' +
+  //           totalReleases +
+  //           ' releases from the ' +
+  //           labelNameDiscogs +
+  //           ' discography.<br /><br />For the next step, we will create the playlist "' +
+  //           playlistName +
+  //           '" in your Spotify account and start filling it with the releases from the ' +
+  //           labelNameDiscogs +
+  //           ' discography.'
+  //       );
+  //       $('#discographyFetched').modal('show');
+  //     }
+  //   },
+  //   error: function(xhr, data) {
+  //     if (xhr.status == 404) {
+  //       $('#errorModalText').html('Unknown Record Label. Please try again.');
+  //       $('#errorModal').modal('show');
+  //     } else if (xhr.status == 0) {
+  //       $('#waiting').show();
+
+  //       //Wait a 'few' seconds, then try again
+  //       setTimeout(searchLabelDiscogs, 61000, labelName, page);
+  //     } else if (xhr.status == 401) {
+  //       $('#errorModalText').html(
+  //         "We couldn't fetch this Discography from Discogs. Please double check that the label is on Discogs."
+  //       );
+  //       $('#errorModal').modal('show');
+  //     } else {
+  //       $('#errorModalText').html(
+  //         'Something went wrong while fetching the discography: ' +
+  //           xhr.status +
+  //           '. Please try again.'
+  //       );
+  //       $('#errorModal').modal('show');
+  //     }
+  //   }
+  // });
 }
 /************************************
 //                                  *
@@ -765,59 +821,60 @@ function searchLabelDiscogs(labelName, page) {
 //***********************************/
 
 $(document).ready(() => {
-  $('#search-labels').hover(function() {
-    $(this).css('cursor', 'pointer');
-  });
+  //   $('#search-labels').hover(function() {
+  //     $(this).css('cursor', 'pointer');
+  //   });
 
-  const params = getURLParams();
-  // spotify_token = params.access_token;
-  spotify_token = 'BQBIz9nez7oJAbvi7MUhyW29ufj2xl0oCWBmYE5s1KAhE01HmqYCwh1nmJEdMVS6vJaGCJA8LecKdPKNkNW-jW98yWLALEhhG3yeNx5HsBYmg8ZgVEiSU5zTfpis3Zi_gdWD8Ll5V4UO4AeTD25FgUWLRFjuGxdQ_bAfgdAIRTkRY5JpC6BS7WiTyREG4Xr-jREV6dZsWf-mbKWldyw4p3XPfn0';
+  //   const params = getURLParams();
+  //   // spotify_token = params.access_token;
+  //   spotify_token =
+  //     'BQBIz9nez7oJAbvi7MUhyW29ufj2xl0oCWBmYE5s1KAhE01HmqYCwh1nmJEdMVS6vJaGCJA8LecKdPKNkNW-jW98yWLALEhhG3yeNx5HsBYmg8ZgVEiSU5zTfpis3Zi_gdWD8Ll5V4UO4AeTD25FgUWLRFjuGxdQ_bAfgdAIRTkRY5JpC6BS7WiTyREG4Xr-jREV6dZsWf-mbKWldyw4p3XPfn0';
 
-  //Set exportIsActive to false on page load in the event that the previous
-  //export did not complete
-  exportIsActive = false;
+  //   //Set exportIsActive to false on page load in the event that the previous
+  //   //export did not complete
+  //   exportIsActive = false;
 
   // Check the login state; set usrID, usrCountry, and usrNameSpotify
-  if (spotify_token) {
-    $.ajax({
-      url: 'https://api.spotify.com/v1/me',
-      headers: {
-        Authorization: 'Bearer ' + spotify_token
-      },
-      success: response => {
-        // $('#login').hide();
-        // $('#loggedin').show();
+  // if (spotify_token) {
+  //   $.ajax({
+  //     url: 'https://api.spotify.com/v1/me',
+  //     headers: {
+  //       Authorization: 'Bearer ' + spotify_token
+  //     },
+  //     success: response => {
+  //       // $('#login').hide();
+  //       // $('#loggedin').show();
 
-        usrID = response.id;
-        usrCountry = response.country;
-        usrNameSpotify = response.display_name;
-        usrImageURL = '';
-        usrImage = '';
+  //       usrID = response.id;
+  //       usrCountry = response.country;
+  //       usrNameSpotify = response.display_name;
+  //       usrImageURL = '';
+  //       usrImage = '';
 
-        if (response.images[0] != null) {
-          usrImageURL = response.images[0].url;
-        }
+  //       if (response.images[0] != null) {
+  //         usrImageURL = response.images[0].url;
+  //       }
 
-        if (usrImageURL !== '') {
-          usrImage = '<img src=""' + usrImageURL + '>';
-        }
+  //       if (usrImageURL !== '') {
+  //         usrImage = '<img src=""' + usrImageURL + '>';
+  //       }
 
-        ////BRING BACK
+  //       ////BRING BACK
 
-        // if (usrNameSpotify === null) {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
-        // } else {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
-        // }
-      },
-      error: (xhr, data) => {
-        // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-        console.error(data);
-      }
-    });
-  } else {
-    // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-  }
+  //       // if (usrNameSpotify === null) {
+  //       //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
+  //       // } else {
+  //       //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
+  //       // }
+  //     },
+  //     error: (xhr, data) => {
+  //       // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+  //       console.error(data);
+  //     }
+  //   });
+  // } else {
+  //   // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+  // }
 
   //Search Start Button
   $('#search-labels').click(function(e) {
