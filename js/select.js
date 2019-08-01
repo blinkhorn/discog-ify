@@ -14,8 +14,8 @@ let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
 let exportIsActive = false;
-let usrID = '' + 126619775;
-let usrCountry = 'US';
+let usrID = '';
+let usrCountry = '';
 let usrNameSpotify = '';
 let usrImageURL = '';
 let usrImage = '';
@@ -96,8 +96,8 @@ function getURLParams() {
 
 const params = getURLParams();
 // spotify_token = params.access_token;
-spotify_token =
-  'BQBJTVVIhjPGc1dDhWg5sBIaiF-_-qV3VBNHAONJ_NQmCyT6pClzDsLRkwEQZZ-eprB4guezh-JweRPomfNMCrm9DWlfm-it55tSC1D8GtK4gNcxIAMOgv4kLPa-WWsS6RASBqwUDS4rOIdOESsh_a9AvTJB9V7GwWyjT9k1sGCFxE8tIDpj8jIgEUwdfr1L3Y4Uqy2hNsT7xw347X1E8wTRurI';
+spotify_token = params.access_token;
+  
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
