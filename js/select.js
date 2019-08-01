@@ -10,7 +10,6 @@ let globalLabels = [];
 let totalReleases = 0;
 let totalLabels = 0;
 let playlistID = null;
-let multipleMatches;
 let withoutMatches;
 let addedCount = 0;
 let adedArtistCount = 0;
@@ -56,40 +55,6 @@ var theLabel = new Label(labelName, (releases = []));
 //      Function Expressions        *
 //                                  *
 //***********************************/
-//underscore.js ratelimit function
-_.rateLimit = function(func, rate, async) {
-  var queue = [];
-  var timeOutRef = false;
-  var currentlyEmptyingQueue = false;
-
-  var emptyQueue = function() {
-    if (queue.length) {
-      currentlyEmptyingQueue = true;
-      _.delay(function() {
-        if (async) {
-          _.defer(function() {
-            queue.shift().call();
-          });
-        } else {
-          queue.shift().call();
-        }
-        emptyQueue();
-      }, rate);
-    } else {
-      currentlyEmptyingQueue = false;
-    }
-  };
-
-  return function() {
-    var args = _.map(arguments, function(e) {
-      return e;
-    }); // get arguments into an array
-    queue.push(_.bind.apply(this, [func, this].concat(args))); // call apply so that we can pass in arguments as parameters as opposed to an array
-    if (!currentlyEmptyingQueue) {
-      emptyQueue();
-    }
-  };
-};
 
 function requestAllWithDelay(urls, delay) {
   return urls.reduce((promise, url) => {
@@ -105,19 +70,6 @@ function requestAllWithDelay(urls, delay) {
     });
   }, Promise.resolve([]));
 }
-
-// function debounce(func, wait, immediate) {
-// 	var timeout;
-// 	return function() {
-// 		var context = this, args = arguments;
-// 		clearTimeout(timeout);
-// 		timeout = setTimeout(function() {
-// 			timeout = null;
-// 			if (!immediate) func.apply(context, args);
-// 		}, wait);
-// 		if (immediate && !timeout) func.apply(context, args);
-// 	};
-// }
 
 //converts first letter of each word to uppercase
 function toUpperCase(str) {
@@ -145,11 +97,11 @@ function getURLParams() {
 const params = getURLParams();
 // spotify_token = params.access_token;
 spotify_token =
-  'BQB_wB1YhAqHoqTqQu2ue1FShAHDbnoK2ujcDlDD1amU17tos90sw9dDD7MkBaJQmiXzxLaKDVFl5vQEH-t3AGwaaao9C3HsJB8EoZWTxKiLVi910EbpjlDwXVVHRzw7iiuZK6joRw-sKQBHjnAcTIQMsUiCCfqAakOWeFGfUHRINbSI6hc1P8lIhbpAreFMDaP6ru-iclCj1x1kkxIHgG7_JOo';
+  'BQBJTVVIhjPGc1dDhWg5sBIaiF-_-qV3VBNHAONJ_NQmCyT6pClzDsLRkwEQZZ-eprB4guezh-JweRPomfNMCrm9DWlfm-it55tSC1D8GtK4gNcxIAMOgv4kLPa-WWsS6RASBqwUDS4rOIdOESsh_a9AvTJB9V7GwWyjT9k1sGCFxE8tIDpj8jIgEUwdfr1L3Y4Uqy2hNsT7xw347X1E8wTRurI';
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
-  var searchReleaseDiscogsLimited = _.rateLimit(searchReleaseDiscogs, 3000);
+  
   const requestUrls = [];
   const releaseTitles = [];
   $.each(discogsResult.results, (pos, results) => {
@@ -167,7 +119,7 @@ function identifyLabelResults(discogsResult) {
       releaseTitles.push(resultTitle);
     }
   });
-  searchReleaseDiscogsLimited(requestUrls);
+  searchReleaseDiscogs(requestUrls);
 }
 /** Entry point for search function. Fetches the label entered from Discogs */
 function searchReleaseDiscogs(reqUrls) {
@@ -366,61 +318,61 @@ function exportToSpotify() {
 }
 /** If there are releases with multiple possible matches, we display a modal to make the user decide
  * which is the right one */
-function exportMultipleMatches() {
-  if (multipleMatches.length > 0) {
-    var match = multipleMatches[0];
+// function exportMultipleMatches() {
+//   if (multipleMatches.length > 0) {
+//     var match = multipleMatches[0];
 
-    multipleMatches.splice(0, 1);
+//     multipleMatches.splice(0, 1);
 
-    $('#bestMatchHeader').empty();
-    $('#spotifyDiv').empty();
+//     $('#bestMatchHeader').empty();
+//     $('#spotifyDiv').empty();
 
-    var release = match.release;
-    var yearString = release.year != 0 ? ' (' + release.year + ')' : '';
+//     var release = match.release;
+//     var yearString = release.year != 0 ? ' (' + release.year + ')' : '';
 
-    $('#bestMatchHeader').html(
-      "<h4 class='modal-title'>Choose the best match for <b>" +
-        release.title +
-        '</b> by ' +
-        release.artistName +
-        yearString +
-        '</h4>'
-    );
+//     $('#bestMatchHeader').html(
+//       "<h4 class='modal-title'>Choose the best match for <b>" +
+//         release.title +
+//         '</b> by ' +
+//         release.artistName +
+//         yearString +
+//         '</h4>'
+//     );
 
-    var matches = match.matches;
+//     var matches = match.matches;
 
-    $.each(matches, function(pos, album) {
-      var name = album.name;
-      var albumID = album.id;
-      var imageURL = '../record.png';
+//     $.each(matches, function(pos, album) {
+//       var name = album.name;
+//       var albumID = album.id;
+//       var imageURL = '../record.png';
 
-      if (album.images.length !== 0) {
-        imageURL = album.images[0].url;
-      }
+//       if (album.images.length !== 0) {
+//         imageURL = album.images[0].url;
+//       }
 
-      $('#spotifyDiv').append(
-        '<div><img src="' +
-          imageURL +
-          '" width="20%" style="display:inline-block; margin:10px; vertical-align:top"><div style="display:inline-block; width:70%"><h4>' +
-          album.name +
-          '</h4><button id="' +
-          albumID +
-          ' ' +
-          imageURL +
-          '" type="button" class="btn btn-success" onClick = "saveAlbumFromMulti(this.id)"><span class="icon-checkmark"></span> Choose this</button></div></div>'
-      );
-    });
+//       $('#spotifyDiv').append(
+//         '<div><img src="' +
+//           imageURL +
+//           '" width="20%" style="display:inline-block; margin:10px; vertical-align:top"><div style="display:inline-block; width:70%"><h4>' +
+//           album.name +
+//           '</h4><button id="' +
+//           albumID +
+//           ' ' +
+//           imageURL +
+//           '" type="button" class="btn btn-success" onClick = "saveAlbumFromMulti(this.id)"><span class="icon-checkmark"></span> Choose this</button></div></div>'
+//       );
+//     });
 
-    $('#noMatchButton').html(
-      '<span class="icon-cancel-circle"></span> None of the above'
-    );
+//     $('#noMatchButton').html(
+//       '<span class="icon-cancel-circle"></span> None of the above'
+//     );
 
-    $('#bestMatch').modal('show');
-  } else {
-    updateProgressBar(90);
-    showNoMatch();
-  }
-}
+//     $('#bestMatch').modal('show');
+//   } else {
+//     updateProgressBar(90);
+//     showNoMatch();
+//   }
+// }
 
 /** Reacts to the button in the modal and saves the chosen release to the playlist */
 function saveAlbumFromMulti(idAndURL) {
@@ -577,13 +529,13 @@ function handleResultFromSpotify(result, release) {
   }
 
   //More than one possible match - let the user decide
-  if (!done && items.length > 1) {
-    var m = new multipleMatch(release, items);
-    multipleMatches.push(m);
+  // if (!done && items.length > 1) {
+  //   var m = new MultipleMatch(release, items);
+  //   multipleMatches.push(m);
 
-    done = true;
-    return;
-  }
+  //   done = true;
+  //   return;
+  // }
 }
 
 /** Gets an album's tracks and has them saved to the playlist. Adds the cover to the site */
@@ -889,7 +841,7 @@ $(document).ready(() => {
       //Reset some of the global values when the start-button is clicked
       globalArtists = [];
       playlistID = null;
-      multipleMatches = [];
+      // multipleMatches = [];
       withoutMatches = [];
       addedCount = 0;
       totalReleases = 0;
@@ -910,15 +862,15 @@ $(document).ready(() => {
     }
   });
 
-  // Make the user choose the right release
-  $('#releasesAdded').on('hidden.bs.modal', function(e) {
-    exportMultipleMatches();
-  });
+  // // Make the user choose the right release
+  // $('#releasesAdded').on('hidden.bs.modal', function(e) {
+  //   exportMultipleMatches();
+  // });
 
-  // And again after the modal has been hidden
-  $('#bestMatch').on('hidden.bs.modal', function(e) {
-    exportMultipleMatches();
-  });
+  // // And again after the modal has been hidden
+  // $('#bestMatch').on('hidden.bs.modal', function(e) {
+  //   exportMultipleMatches();
+  // });
 
   // Create Playlist
   $('#discographyFetched').on('hidden.bs.modal', function(e) {
