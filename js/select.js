@@ -96,11 +96,10 @@ function getURLParams() {
 const params = getURLParams();
 // spotify_token = params.access_token;
 spotify_token = params.access_token;
-  
+
 //takes the result returned from accessing all label releases from discogs and
 //adds them to the global array (duplicate releases aren't allowed)
 function identifyLabelResults(discogsResult) {
-  
   const requestUrls = [];
   const releaseTitles = [];
   $.each(discogsResult.results, (pos, results) => {
@@ -772,27 +771,24 @@ function searchLabelDiscogs(labelName, page) {
 //***********************************/
 
 $(document).ready(() => {
-    $('#search-labels').hover(function() {
-      $(this).css('cursor', 'pointer');
-    });
+  $('#search-labels').hover(function() {
+    $(this).css('cursor', 'pointer');
+  });
 
-    const params = getURLParams();
-    spotify_token = params.access_token;
-  
-    //Set exportIsActive to false on page load in the event that the previous
-    //export did not complete
-    exportIsActive = false;
+  const params = getURLParams();
+  spotify_token = params.access_token;
+
+  //Set exportIsActive to false on page load in the event that the previous
+  //export did not complete
+  exportIsActive = false;
 
   // Check the login state; set usrID, usrCountry, and usrNameSpotify
   if (spotify_token) {
-    fetch(
-      'https://api.spotify.com/v1/me',
-      {
-        headers: {
-          Authorization: 'Bearer ' + spotify_token
-        }
+    fetch('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: 'Bearer ' + spotify_token
       }
-    )
+    })
       .then(res => res.json())
       .then(response => {
         return new Promise(resolve => {
@@ -801,18 +797,18 @@ $(document).ready(() => {
           usrNameSpotify = response.display_name;
           usrImageURL = '';
           usrImage = '';
-  
+
           if (response.images[0] != null) {
             usrImageURL = response.images[0].url;
           }
-  
+
           if (usrImageURL !== '') {
             usrImage = '<img src=""' + usrImageURL + '>';
           }
         });
       })
       .catch(console.error);
-    
+
     // $.ajax({
     //   url: 'https://api.spotify.com/v1/me',
     //   headers: {
@@ -836,13 +832,13 @@ $(document).ready(() => {
     //       usrImage = '<img src=""' + usrImageURL + '>';
     //     }
 
-        ////BRING BACK
+    ////BRING BACK
 
-        // if (usrNameSpotify === null) {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
-        // } else {
-        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
-        // }
+    // if (usrNameSpotify === null) {
+    //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
+    // } else {
+    //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
+    // }
     //   },
     //   error: (xhr, data) => {
     //     // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
