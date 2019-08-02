@@ -64,7 +64,6 @@ function requestAllWithDelay(urls, delay) {
         .then(response => {
           return new Promise(resolve => {
             setTimeout(resolve, delay, responses.concat(response));
-            console.log('response', response);
           });
         });
     });
@@ -773,60 +772,86 @@ function searchLabelDiscogs(labelName, page) {
 //***********************************/
 
 $(document).ready(() => {
-  //   $('#search-labels').hover(function() {
-  //     $(this).css('cursor', 'pointer');
-  //   });
+    $('#search-labels').hover(function() {
+      $(this).css('cursor', 'pointer');
+    });
 
-  //   const params = getURLParams();
-  //   // spotify_token = params.access_token;
-  //   spotify_token =
-  //     'BQBIz9nez7oJAbvi7MUhyW29ufj2xl0oCWBmYE5s1KAhE01HmqYCwh1nmJEdMVS6vJaGCJA8LecKdPKNkNW-jW98yWLALEhhG3yeNx5HsBYmg8ZgVEiSU5zTfpis3Zi_gdWD8Ll5V4UO4AeTD25FgUWLRFjuGxdQ_bAfgdAIRTkRY5JpC6BS7WiTyREG4Xr-jREV6dZsWf-mbKWldyw4p3XPfn0';
-
-  //   //Set exportIsActive to false on page load in the event that the previous
-  //   //export did not complete
-  //   exportIsActive = false;
+    const params = getURLParams();
+    spotify_token = params.access_token;
+  
+    //Set exportIsActive to false on page load in the event that the previous
+    //export did not complete
+    exportIsActive = false;
 
   // Check the login state; set usrID, usrCountry, and usrNameSpotify
-  // if (spotify_token) {
-  //   $.ajax({
-  //     url: 'https://api.spotify.com/v1/me',
-  //     headers: {
-  //       Authorization: 'Bearer ' + spotify_token
-  //     },
-  //     success: response => {
-  //       // $('#login').hide();
-  //       // $('#loggedin').show();
+  if (spotify_token) {
+    fetch(
+      'https://api.spotify.com/v1/me',
+      {
+        headers: {
+          Authorization: 'Bearer ' + spotify_token
+        }
+      }
+    )
+      .then(res => res.json())
+      .then(response => {
+        return new Promise(resolve => {
+          usrID = response.id;
+          usrCountry = response.country;
+          usrNameSpotify = response.display_name;
+          usrImageURL = '';
+          usrImage = '';
+  
+          if (response.images[0] != null) {
+            usrImageURL = response.images[0].url;
+          }
+  
+          if (usrImageURL !== '') {
+            usrImage = '<img src=""' + usrImageURL + '>';
+          }
+        });
+      })
+      .catch(console.error);
+    
+    // $.ajax({
+    //   url: 'https://api.spotify.com/v1/me',
+    //   headers: {
+    //     Authorization: 'Bearer ' + spotify_token
+    //   },
+    //   success: response => {
+    //     // $('#login').hide();
+    //     // $('#loggedin').show();
 
-  //       usrID = response.id;
-  //       usrCountry = response.country;
-  //       usrNameSpotify = response.display_name;
-  //       usrImageURL = '';
-  //       usrImage = '';
+    //     usrID = response.id;
+    //     usrCountry = response.country;
+    //     usrNameSpotify = response.display_name;
+    //     usrImageURL = '';
+    //     usrImage = '';
 
-  //       if (response.images[0] != null) {
-  //         usrImageURL = response.images[0].url;
-  //       }
+    //     if (response.images[0] != null) {
+    //       usrImageURL = response.images[0].url;
+    //     }
 
-  //       if (usrImageURL !== '') {
-  //         usrImage = '<img src=""' + usrImageURL + '>';
-  //       }
+    //     if (usrImageURL !== '') {
+    //       usrImage = '<img src=""' + usrImageURL + '>';
+    //     }
 
-  //       ////BRING BACK
+        ////BRING BACK
 
-  //       // if (usrNameSpotify === null) {
-  //       //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
-  //       // } else {
-  //       //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
-  //       // }
-  //     },
-  //     error: (xhr, data) => {
-  //       // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-  //       console.error(data);
-  //     }
-  //   });
-  // } else {
-  //   // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
-  // }
+        // if (usrNameSpotify === null) {
+        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrID + '</p>');
+        // } else {
+        //   $('#loggedin').html(usrImage + '<p> Spotify User: ' + usrNameSpotify + '</p>');
+        // }
+    //   },
+    //   error: (xhr, data) => {
+    //     // window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+    //     console.error(data);
+    //   }
+    // });
+  } else {
+    window.location = 'https://blinkhorn.github.io/discog-ify/select.html';
+  }
 
   //Search Start Button
   $('#search-labels').click(function(e) {
